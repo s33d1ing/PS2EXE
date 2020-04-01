@@ -614,7 +614,7 @@ $win32manifest | Set-Content -Path ($OutputFile + '.win32manifest') -Encoding UT
 }
 
 
-if ($NoConsole) { $target = 'winexe' } else { 'exe' }
+if ($NoConsole) { $target = 'winexe' } else { $target =  'exe' }
 
 
 if (-not $Virtualize) {
@@ -634,7 +634,7 @@ if ($PSBoundParameters.ContainsKey('Debug')) { $compilerParameters.TempFiles.Kee
 Write-Output ('Reading input file {0}' -f $InputFile)
 
 
-$content = Get-Content -LiteralPath $InputFile -Encoding UTF8 -ErrorAction Ignore
+$content = Get-Content -LiteralPath $InputFile -Encoding UTF8 -ErrorAction SilentlyContinue
 
 if ([string]::IsNullOrEmpty($content)) {
     Write-Error 'No data found. May be read error or file protected.'
