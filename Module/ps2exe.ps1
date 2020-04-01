@@ -88,13 +88,12 @@ Author: Ingo Karstein, Markus Scholtes
 https://www.powershellgallery.com/packages/ps2exe
 https://gallery.technet.microsoft.com/PS2EXE-GUI-Convert-e7cb69d5
 #>
-function Invoke-ps2exe
-{
-    Param([STRING]$inputFile = $NULL, [STRING]$outputFile = $NULL, [SWITCH]$verbose, [SWITCH]$debug, [SWITCH]$x86, [SWITCH]$x64,
-        [int]$lcid, [SWITCH]$STA, [SWITCH]$MTA, [SWITCH]$noConsole, [SWITCH]$credentialGUI, [STRING]$iconFile = $NULL,
-        [STRING]$title, [STRING]$description, [STRING]$company, [STRING]$product, [STRING]$copyright, [STRING]$trademark, [STRING]$version,
-        [SWITCH]$configFile, [SWITCH]$noConfigFile, [SWITCH]$noOutput, [SWITCH]$noError, [SWITCH]$requireAdmin, [SWITCH]$supportOS,
-        [SWITCH]$virtualize, [SWITCH]$longPaths)
+
+Param([STRING]$inputFile = $NULL, [STRING]$outputFile = $NULL, [SWITCH]$verbose, [SWITCH]$debug, [SWITCH]$x86, [SWITCH]$x64,
+    [int]$lcid, [SWITCH]$STA, [SWITCH]$MTA, [SWITCH]$noConsole, [SWITCH]$credentialGUI, [STRING]$iconFile = $NULL,
+    [STRING]$title, [STRING]$description, [STRING]$company, [STRING]$product, [STRING]$copyright, [STRING]$trademark, [STRING]$version,
+    [SWITCH]$configFile, [SWITCH]$noConfigFile, [SWITCH]$noOutput, [SWITCH]$noError, [SWITCH]$requireAdmin, [SWITCH]$supportOS,
+    [SWITCH]$virtualize, [SWITCH]$longPaths)
 
 <################################################################################>
 <##                                                                            ##>
@@ -108,248 +107,248 @@ function Invoke-ps2exe
 <##                                                                            ##>
 <################################################################################>
 
-    Write-Output "PS2EXE-GUI v0.5.0.19 by Ingo Karstein, reworked and GUI support by Markus Scholtes`n"
+Write-Output "PS2EXE-GUI v0.5.0.19 by Ingo Karstein, reworked and GUI support by Markus Scholtes`n"
 
-    if ([STRING]::IsNullOrEmpty($inputFile))
+if ([STRING]::IsNullOrEmpty($inputFile))
+{
+    Write-Output "Usage:`n"
+    Write-Output "Invoke-ps2exe [-inputFile] '<filename>' [[-outputFile] '<filename>'] [-verbose]"
+    Write-Output "              [-debug] [-x86|-x64] [-lcid <id>] [-STA|-MTA] [-noConsole]"
+    Write-Output "              [-credentialGUI] [-iconFile '<filename>'] [-title '<title>'] [-description '<description>']"
+    Write-Output "              [-company '<company>'] [-product '<product>'] [-copyright '<copyright>'] [-trademark '<trademark>']"
+    Write-Output "              [-version '<version>'] [-configFile] [-noOutput] [-noError] [-requireAdmin] [-supportOS]"
+    Write-Output "              [-virtualize] [-longPaths]""`n"
+    Write-Output "    inputFile = Powershell script that you want to convert to executable"
+    Write-Output "   outputFile = destination executable file name, defaults to inputFile with extension '.exe'"
+    Write-Output "   x86 or x64 = compile for 32-bit or 64-bit runtime only"
+    Write-Output "         lcid = location ID for the compiled executable. Current user culture if not specified"
+    Write-Output "   STA or MTA = 'Single Thread Apartment' or 'Multi Thread Apartment' mode"
+    Write-Output "    noConsole = the resulting executable will be a Windows Forms app without a console window"
+    Write-Output "credentialGUI = use GUI for prompting credentials in console mode"
+    Write-Output "     iconFile = icon file name for the compiled executable"
+    Write-Output "        title = title information (displayed in details tab of Windows Explorer's properties dialog)"
+    Write-Output "  description = description information (not displayed, but embedded in executable)"
+    Write-Output "      company = company information (not displayed, but embedded in executable)"
+    Write-Output "      product = product information (displayed in details tab of Windows Explorer's properties dialog)"
+    Write-Output "    copyright = copyright information (displayed in details tab of Windows Explorer's properties dialog)"
+    Write-Output "    trademark = trademark information (displayed in details tab of Windows Explorer's properties dialog)"
+    Write-Output "      version = version information (displayed in details tab of Windows Explorer's properties dialog)"
+    Write-Output "   configFile = write a config file (<outputfile>.exe.config)"
+    Write-Output "     noOutput = the resulting executable will generate no standard output (includes verbose and information channel)"
+    Write-Output "      noError = the resulting executable will generate no error output (includes warning and debug channel)"
+    Write-Output " requireAdmin = if UAC is enabled, compiled executable run only in elevated context (UAC dialog appears if required)"
+    Write-Output "    supportOS = use functions of newest Windows versions (execute [Environment]::OSVersion to see the difference)"
+    Write-Output "   virtualize = application virtualization is activated (forcing x86 runtime)"
+    Write-Output "    longPaths = enable long paths ( > 260 characters) if enabled on OS (works only with Windows 10)`n"
+    Write-Output "Input file not specified!"
+    return
+}
+
+# retrieve absolute paths independent if path is given relative oder absolute
+$inputFile = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($inputFile)
+if ([STRING]::IsNullOrEmpty($outputFile))
+{
+    $outputFile = ([System.IO.Path]::Combine([System.IO.Path]::GetDirectoryName($inputFile), [System.IO.Path]::GetFileNameWithoutExtension($inputFile)+".exe"))
+}
+else
+{
+    $outputFile = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($outputFile)
+}
+
+if (!(Test-Path $inputFile -PathType Leaf))
+{
+    Write-Error "Input file $($inputfile) not found!"
+    return
+}
+
+if ($inputFile -eq $outputFile)
+{
+    Write-Error "Input file is identical to output file!"
+    return
+}
+
+if (($outputFile -notlike "*.exe") -and ($outputFile -notlike "*.com"))
+{
+    Write-Error "Output file must have extension '.exe' or '.com'!"
+    return
+}
+
+if (!([STRING]::IsNullOrEmpty($iconFile)))
+{
+    # retrieve absolute path independent if path is given relative oder absolute
+    $iconFile = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($iconFile)
+
+    if (!(Test-Path $iconFile -PathType Leaf))
     {
-        Write-Output "Usage:`n"
-        Write-Output "Invoke-ps2exe [-inputFile] '<filename>' [[-outputFile] '<filename>'] [-verbose]"
-        Write-Output "              [-debug] [-x86|-x64] [-lcid <id>] [-STA|-MTA] [-noConsole]"
-        Write-Output "              [-credentialGUI] [-iconFile '<filename>'] [-title '<title>'] [-description '<description>']"
-        Write-Output "              [-company '<company>'] [-product '<product>'] [-copyright '<copyright>'] [-trademark '<trademark>']"
-        Write-Output "              [-version '<version>'] [-configFile] [-noOutput] [-noError] [-requireAdmin] [-supportOS]"
-        Write-Output "              [-virtualize] [-longPaths]""`n"
-        Write-Output "    inputFile = Powershell script that you want to convert to executable"
-        Write-Output "   outputFile = destination executable file name, defaults to inputFile with extension '.exe'"
-        Write-Output "   x86 or x64 = compile for 32-bit or 64-bit runtime only"
-        Write-Output "         lcid = location ID for the compiled executable. Current user culture if not specified"
-        Write-Output "   STA or MTA = 'Single Thread Apartment' or 'Multi Thread Apartment' mode"
-        Write-Output "    noConsole = the resulting executable will be a Windows Forms app without a console window"
-        Write-Output "credentialGUI = use GUI for prompting credentials in console mode"
-        Write-Output "     iconFile = icon file name for the compiled executable"
-        Write-Output "        title = title information (displayed in details tab of Windows Explorer's properties dialog)"
-        Write-Output "  description = description information (not displayed, but embedded in executable)"
-        Write-Output "      company = company information (not displayed, but embedded in executable)"
-        Write-Output "      product = product information (displayed in details tab of Windows Explorer's properties dialog)"
-        Write-Output "    copyright = copyright information (displayed in details tab of Windows Explorer's properties dialog)"
-        Write-Output "    trademark = trademark information (displayed in details tab of Windows Explorer's properties dialog)"
-        Write-Output "      version = version information (displayed in details tab of Windows Explorer's properties dialog)"
-        Write-Output "   configFile = write a config file (<outputfile>.exe.config)"
-        Write-Output "     noOutput = the resulting executable will generate no standard output (includes verbose and information channel)"
-        Write-Output "      noError = the resulting executable will generate no error output (includes warning and debug channel)"
-        Write-Output " requireAdmin = if UAC is enabled, compiled executable run only in elevated context (UAC dialog appears if required)"
-        Write-Output "    supportOS = use functions of newest Windows versions (execute [Environment]::OSVersion to see the difference)"
-        Write-Output "   virtualize = application virtualization is activated (forcing x86 runtime)"
-        Write-Output "    longPaths = enable long paths ( > 260 characters) if enabled on OS (works only with Windows 10)`n"
-        Write-Output "Input file not specified!"
+        Write-Error "Icon file $($iconFile) not found!"
         return
     }
+}
 
-    # retrieve absolute paths independent if path is given relative oder absolute
-    $inputFile = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($inputFile)
-    if ([STRING]::IsNullOrEmpty($outputFile))
-    {
-        $outputFile = ([System.IO.Path]::Combine([System.IO.Path]::GetDirectoryName($inputFile), [System.IO.Path]::GetFileNameWithoutExtension($inputFile)+".exe"))
-    }
-    else
-    {
-        $outputFile = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($outputFile)
-    }
+if ($requireAdmin -and $virtualize)
+{
+    Write-Error "-requireAdmin cannot be combined with -virtualize"
+    return
+}
+if ($supportOS -and $virtualize)
+{
+    Write-Error "-supportOS cannot be combined with -virtualize"
+    return
+}
+if ($longPaths -and $virtualize)
+{
+    Write-Error "-longPaths cannot be combined with -virtualize"
+    return
+}
 
-    if (!(Test-Path $inputFile -PathType Leaf))
+$CFGFILE = $FALSE
+if ($configFile)
+{ $CFGFILE = $TRUE
+    if ($noConfigFile)
     {
-        Write-Error "Input file $($inputfile) not found!"
+        Write-Error "-configFile cannot be combined with -noConfigFile"
         return
     }
+}
+if (!$CFGFILE -and $longPaths)
+{
+    Write-Warning "Forcing generation of a config file, since the option -longPaths requires this"
+    $CFGFILE = $TRUE
+}
 
-    if ($inputFile -eq $outputFile)
+if ($STA -and $MTA)
+{
+    Write-Error "You cannot use switches -STA and -MTA at the same time!"
+    return
+}
+
+if (!$MTA -and !$STA)
+{
+    # Set default apartment mode for powershell version if not set by parameter
+    $STA = $TRUE
+}
+
+# escape escape sequences in version info
+$title = $title -replace "\\", "\\"
+$product = $product -replace "\\", "\\"
+$copyright = $copyright -replace "\\", "\\"
+$trademark = $trademark -replace "\\", "\\"
+$description = $description -replace "\\", "\\"
+$company = $company -replace "\\", "\\"
+
+if (![STRING]::IsNullOrEmpty($version))
+{ # check for correct version number information
+    if ($version -notmatch "(^\d+\.\d+\.\d+\.\d+$)|(^\d+\.\d+\.\d+$)|(^\d+\.\d+$)|(^\d+$)")
     {
-        Write-Error "Input file is identical to output file!"
+        Write-Error "Version number has to be supplied in the form n.n.n.n, n.n.n, n.n or n (with n as number)!"
         return
     }
+}
 
-    if (($outputFile -notlike "*.exe") -and ($outputFile -notlike "*.com"))
+Write-Output ""
+
+$type = ('System.Collections.Generic.Dictionary`2') -as "Type"
+$type = $type.MakeGenericType( @( ("System.String" -as "Type"), ("system.string" -as "Type") ) )
+$o = [Activator]::CreateInstance($type)
+$o.Add("CompilerVersion", "v4.0")
+
+$referenceAssembies = @("System.dll")
+if (!$noConsole)
+{
+    if ([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.ManifestModule.Name -ieq "Microsoft.PowerShell.ConsoleHost.dll" })
     {
-        Write-Error "Output file must have extension '.exe' or '.com'!"
-        return
+        $referenceAssembies += ([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.ManifestModule.Name -ieq "Microsoft.PowerShell.ConsoleHost.dll" } | Select-Object -First 1).Location
     }
+}
+$referenceAssembies += ([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.ManifestModule.Name -ieq "System.Management.Automation.dll" } | Select-Object -First 1).Location
 
-    if (!([STRING]::IsNullOrEmpty($iconFile)))
-    {
-        # retrieve absolute path independent if path is given relative oder absolute
-        $iconFile = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($iconFile)
+$n = New-Object System.Reflection.AssemblyName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
+[System.AppDomain]::CurrentDomain.Load($n) | Out-Null
+$referenceAssembies += ([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.ManifestModule.Name -ieq "System.Core.dll" } | Select-Object -First 1).Location
 
-        if (!(Test-Path $iconFile -PathType Leaf))
-        {
-            Write-Error "Icon file $($iconFile) not found!"
-            return
-        }
-    }
-
-    if ($requireAdmin -and $virtualize)
-    {
-        Write-Error "-requireAdmin cannot be combined with -virtualize"
-        return
-    }
-    if ($supportOS -and $virtualize)
-    {
-        Write-Error "-supportOS cannot be combined with -virtualize"
-        return
-    }
-    if ($longPaths -and $virtualize)
-    {
-        Write-Error "-longPaths cannot be combined with -virtualize"
-        return
-    }
-
-    $CFGFILE = $FALSE
-    if ($configFile)
-    { $CFGFILE = $TRUE
-        if ($noConfigFile)
-        {
-            Write-Error "-configFile cannot be combined with -noConfigFile"
-            return
-        }
-    }
-    if (!$CFGFILE -and $longPaths)
-    {
-        Write-Warning "Forcing generation of a config file, since the option -longPaths requires this"
-        $CFGFILE = $TRUE
-    }
-
-    if ($STA -and $MTA)
-    {
-        Write-Error "You cannot use switches -STA and -MTA at the same time!"
-        return
-    }
-
-    if (!$MTA -and !$STA)
-    {
-        # Set default apartment mode for powershell version if not set by parameter
-        $STA = $TRUE
-    }
-
-    # escape escape sequences in version info
-    $title = $title -replace "\\", "\\"
-    $product = $product -replace "\\", "\\"
-    $copyright = $copyright -replace "\\", "\\"
-    $trademark = $trademark -replace "\\", "\\"
-    $description = $description -replace "\\", "\\"
-    $company = $company -replace "\\", "\\"
-
-    if (![STRING]::IsNullOrEmpty($version))
-    { # check for correct version number information
-        if ($version -notmatch "(^\d+\.\d+\.\d+\.\d+$)|(^\d+\.\d+\.\d+$)|(^\d+\.\d+$)|(^\d+$)")
-        {
-            Write-Error "Version number has to be supplied in the form n.n.n.n, n.n.n, n.n or n (with n as number)!"
-            return
-        }
-    }
-
-    Write-Output ""
-
-    $type = ('System.Collections.Generic.Dictionary`2') -as "Type"
-    $type = $type.MakeGenericType( @( ("System.String" -as "Type"), ("system.string" -as "Type") ) )
-    $o = [Activator]::CreateInstance($type)
-    $o.Add("CompilerVersion", "v4.0")
-
-    $referenceAssembies = @("System.dll")
-    if (!$noConsole)
-    {
-        if ([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.ManifestModule.Name -ieq "Microsoft.PowerShell.ConsoleHost.dll" })
-        {
-            $referenceAssembies += ([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.ManifestModule.Name -ieq "Microsoft.PowerShell.ConsoleHost.dll" } | Select-Object -First 1).Location
-        }
-    }
-    $referenceAssembies += ([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.ManifestModule.Name -ieq "System.Management.Automation.dll" } | Select-Object -First 1).Location
-
-    $n = New-Object System.Reflection.AssemblyName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
+if ($noConsole)
+{
+    $n = New-Object System.Reflection.AssemblyName("System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
     [System.AppDomain]::CurrentDomain.Load($n) | Out-Null
-    $referenceAssembies += ([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.ManifestModule.Name -ieq "System.Core.dll" } | Select-Object -First 1).Location
 
-    if ($noConsole)
+    $n = New-Object System.Reflection.AssemblyName("System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")
+    [System.AppDomain]::CurrentDomain.Load($n) | Out-Null
+
+    $referenceAssembies += ([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.ManifestModule.Name -ieq "System.Windows.Forms.dll" } | Select-Object -First 1).Location
+    $referenceAssembies += ([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.ManifestModule.Name -ieq "System.Drawing.dll" } | Select-Object -First 1).Location
+}
+
+$platform = "anycpu"
+if ($x64 -and !$x86) { $platform = "x64" } else { if ($x86 -and !$x64) { $platform = "x86" }}
+
+$cop = (New-Object Microsoft.CSharp.CSharpCodeProvider($o))
+$cp = New-Object System.CodeDom.Compiler.CompilerParameters($referenceAssembies, $outputFile)
+$cp.GenerateInMemory = $FALSE
+$cp.GenerateExecutable = $TRUE
+
+$iconFileParam = ""
+if (!([STRING]::IsNullOrEmpty($iconFile)))
+{
+    $iconFileParam = "`"/win32icon:$($iconFile)`""
+}
+
+$manifestParam = ""
+if ($requireAdmin -or $supportOS -or $longPaths)
+{
+    $manifestParam = "`"/win32manifest:$($outputFile+".win32manifest")`""
+    $win32manifest = "<?xml version=""1.0"" encoding=""UTF-8"" standalone=""yes""?>`r`n<assembly xmlns=""urn:schemas-microsoft-com:asm.v1"" manifestVersion=""1.0"">`r`n"
+    if ($longPaths)
     {
-        $n = New-Object System.Reflection.AssemblyName("System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
-        [System.AppDomain]::CurrentDomain.Load($n) | Out-Null
-
-        $n = New-Object System.Reflection.AssemblyName("System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")
-        [System.AppDomain]::CurrentDomain.Load($n) | Out-Null
-
-        $referenceAssembies += ([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.ManifestModule.Name -ieq "System.Windows.Forms.dll" } | Select-Object -First 1).Location
-        $referenceAssembies += ([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.ManifestModule.Name -ieq "System.Drawing.dll" } | Select-Object -First 1).Location
+        $win32manifest += "<application xmlns=""urn:schemas-microsoft-com:asm.v3"">`r`n<windowsSettings>`r`n<longPathAware xmlns=""http://schemas.microsoft.com/SMI/2016/WindowsSettings"">true</longPathAware>`r`n</windowsSettings>`r`n</application>`r`n"
     }
-
-    $platform = "anycpu"
-    if ($x64 -and !$x86) { $platform = "x64" } else { if ($x86 -and !$x64) { $platform = "x86" }}
-
-    $cop = (New-Object Microsoft.CSharp.CSharpCodeProvider($o))
-    $cp = New-Object System.CodeDom.Compiler.CompilerParameters($referenceAssembies, $outputFile)
-    $cp.GenerateInMemory = $FALSE
-    $cp.GenerateExecutable = $TRUE
-
-    $iconFileParam = ""
-    if (!([STRING]::IsNullOrEmpty($iconFile)))
+    if ($requireAdmin)
     {
-        $iconFileParam = "`"/win32icon:$($iconFile)`""
+        $win32manifest += "<trustInfo xmlns=""urn:schemas-microsoft-com:asm.v2"">`r`n<security>`r`n<requestedPrivileges xmlns=""urn:schemas-microsoft-com:asm.v3"">`r`n<requestedExecutionLevel level=""requireAdministrator"" uiAccess=""false""/>`r`n</requestedPrivileges>`r`n</security>`r`n</trustInfo>`r`n"
     }
-
-    $manifestParam = ""
-    if ($requireAdmin -or $supportOS -or $longPaths)
+    if ($supportOS)
     {
-        $manifestParam = "`"/win32manifest:$($outputFile+".win32manifest")`""
-        $win32manifest = "<?xml version=""1.0"" encoding=""UTF-8"" standalone=""yes""?>`r`n<assembly xmlns=""urn:schemas-microsoft-com:asm.v1"" manifestVersion=""1.0"">`r`n"
-        if ($longPaths)
-        {
-            $win32manifest += "<application xmlns=""urn:schemas-microsoft-com:asm.v3"">`r`n<windowsSettings>`r`n<longPathAware xmlns=""http://schemas.microsoft.com/SMI/2016/WindowsSettings"">true</longPathAware>`r`n</windowsSettings>`r`n</application>`r`n"
-        }
-        if ($requireAdmin)
-        {
-            $win32manifest += "<trustInfo xmlns=""urn:schemas-microsoft-com:asm.v2"">`r`n<security>`r`n<requestedPrivileges xmlns=""urn:schemas-microsoft-com:asm.v3"">`r`n<requestedExecutionLevel level=""requireAdministrator"" uiAccess=""false""/>`r`n</requestedPrivileges>`r`n</security>`r`n</trustInfo>`r`n"
-        }
-        if ($supportOS)
-        {
-            $win32manifest += "<compatibility xmlns=""urn:schemas-microsoft-com:compatibility.v1"">`r`n<application>`r`n<supportedOS Id=""{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}""/>`r`n<supportedOS Id=""{1f676c76-80e1-4239-95bb-83d0f6d0da78}""/>`r`n<supportedOS Id=""{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}""/>`r`n<supportedOS Id=""{35138b9a-5d96-4fbd-8e2d-a2440225f93a}""/>`r`n<supportedOS Id=""{e2011457-1546-43c5-a5fe-008deee3d3f0}""/>`r`n</application>`r`n</compatibility>`r`n"
-        }
-        $win32manifest += "</assembly>"
-        $win32manifest | Set-Content ($outputFile+".win32manifest") -Encoding UTF8
+        $win32manifest += "<compatibility xmlns=""urn:schemas-microsoft-com:compatibility.v1"">`r`n<application>`r`n<supportedOS Id=""{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}""/>`r`n<supportedOS Id=""{1f676c76-80e1-4239-95bb-83d0f6d0da78}""/>`r`n<supportedOS Id=""{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}""/>`r`n<supportedOS Id=""{35138b9a-5d96-4fbd-8e2d-a2440225f93a}""/>`r`n<supportedOS Id=""{e2011457-1546-43c5-a5fe-008deee3d3f0}""/>`r`n</application>`r`n</compatibility>`r`n"
     }
+    $win32manifest += "</assembly>"
+    $win32manifest | Set-Content ($outputFile+".win32manifest") -Encoding UTF8
+}
 
-    if (!$virtualize)
-    { $cp.CompilerOptions = "/platform:$($platform) /target:$( if ($noConsole){'winexe'}else{'exe'}) $($iconFileParam) $($manifestParam)" }
-    else
-    {
-        Write-Output "Application virtualization is activated, forcing x86 platfom."
-        $cp.CompilerOptions = "/platform:x86 /target:$( if ($noConsole) { 'winexe' } else { 'exe' } ) /nowin32manifest $($iconFileParam)"
-    }
+if (!$virtualize)
+{ $cp.CompilerOptions = "/platform:$($platform) /target:$( if ($noConsole){'winexe'}else{'exe'}) $($iconFileParam) $($manifestParam)" }
+else
+{
+    Write-Output "Application virtualization is activated, forcing x86 platfom."
+    $cp.CompilerOptions = "/platform:x86 /target:$( if ($noConsole) { 'winexe' } else { 'exe' } ) /nowin32manifest $($iconFileParam)"
+}
 
-    $cp.IncludeDebugInformation = $debug
+$cp.IncludeDebugInformation = $debug
 
-    if ($debug)
-    {
-        $cp.TempFiles.KeepFiles = $TRUE
-    }
+if ($debug)
+{
+    $cp.TempFiles.KeepFiles = $TRUE
+}
 
-    Write-Output "Reading input file $inputFile"
-    $content = Get-Content -LiteralPath $inputFile -Encoding UTF8 -ErrorAction SilentlyContinue
-    if ([STRING]::IsNullOrEmpty($content))
-    {
-        Write-Error "No data found. May be read error or file protected."
-        return
-    }
-    $scriptInp = [STRING]::Join("`r`n", $content)
-    $script = [System.Convert]::ToBase64String(([System.Text.Encoding]::UTF8.GetBytes($scriptInp)))
+Write-Output "Reading input file $inputFile"
+$content = Get-Content -LiteralPath $inputFile -Encoding UTF8 -ErrorAction SilentlyContinue
+if ([STRING]::IsNullOrEmpty($content))
+{
+    Write-Error "No data found. May be read error or file protected."
+    return
+}
+$scriptInp = [STRING]::Join("`r`n", $content)
+$script = [System.Convert]::ToBase64String(([System.Text.Encoding]::UTF8.GetBytes($scriptInp)))
 
-    $culture = ""
+$culture = ""
 
-    if ($lcid)
-    {
-        $culture = @"
+if ($lcid)
+{
+    $culture = @"
 System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.GetCultureInfo($lcid);
 System.Threading.Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.GetCultureInfo($lcid);
 "@
-    }
+}
 
-    $programFrame = @"
+$programFrame = @"
 // Simple PowerShell host created by Ingo Karstein (http://blog.karstein-consulting.com) for PS2EXE
 // Reworked and GUI support by Markus Scholtes
 
@@ -2411,54 +2410,53 @@ $(if (!$noConsole) {@"
 }
 "@
 
-    $configFileForEXE3 = "<?xml version=""1.0"" encoding=""utf-8"" ?>`r`n<configuration><startup><supportedRuntime version=""v4.0"" sku="".NETFramework,Version=v4.0"" /></startup></configuration>"
-    if ($longPaths)
-    {
-        $configFileForEXE3 = "<?xml version=""1.0"" encoding=""utf-8"" ?>`r`n<configuration><startup><supportedRuntime version=""v4.0"" sku="".NETFramework,Version=v4.0"" /></startup><runtime><AppContextSwitchOverrides value=""Switch.System.IO.UseLegacyPathHandling=false;Switch.System.IO.BlockLongPaths=false"" /></runtime></configuration>"
-    }
+$configFileForEXE3 = "<?xml version=""1.0"" encoding=""utf-8"" ?>`r`n<configuration><startup><supportedRuntime version=""v4.0"" sku="".NETFramework,Version=v4.0"" /></startup></configuration>"
+if ($longPaths)
+{
+    $configFileForEXE3 = "<?xml version=""1.0"" encoding=""utf-8"" ?>`r`n<configuration><startup><supportedRuntime version=""v4.0"" sku="".NETFramework,Version=v4.0"" /></startup><runtime><AppContextSwitchOverrides value=""Switch.System.IO.UseLegacyPathHandling=false;Switch.System.IO.BlockLongPaths=false"" /></runtime></configuration>"
+}
 
-    Write-Output "Compiling file...`n"
-    $cr = $cop.CompileAssemblyFromSource($cp, $programFrame)
-    if ($cr.Errors.Count -gt 0)
+Write-Output "Compiling file...`n"
+$cr = $cop.CompileAssemblyFromSource($cp, $programFrame)
+if ($cr.Errors.Count -gt 0)
+{
+    if (Test-Path $outputFile)
     {
-        if (Test-Path $outputFile)
+        Remove-Item $outputFile -Verbose:$FALSE
+    }
+    Write-Error -ErrorAction Continue "Could not create the PowerShell .exe file because of compilation errors. Use -verbose parameter to see details."
+    $cr.Errors | ForEach-Object { Write-Verbose $_ -Verbose:$verbose}
+}
+else
+{
+    if (Test-Path $outputFile)
+    {
+        Write-Output "Output file $outputFile written"
+
+        if ($debug)
         {
-            Remove-Item $outputFile -Verbose:$FALSE
+            $cr.TempFiles | Where-Object { $_ -ilike "*.cs" } | Select-Object -First 1 | ForEach-Object {
+                $dstSrc = ([System.IO.Path]::Combine([System.IO.Path]::GetDirectoryName($outputFile), [System.IO.Path]::GetFileNameWithoutExtension($outputFile)+".cs"))
+                Write-Output "Source file name for debug copied: $($dstSrc)"
+                Copy-Item -Path $_ -Destination $dstSrc -Force
+            }
+            $cr.TempFiles | Remove-Item -Verbose:$FALSE -Force -ErrorAction SilentlyContinue
         }
-        Write-Error -ErrorAction Continue "Could not create the PowerShell .exe file because of compilation errors. Use -verbose parameter to see details."
-        $cr.Errors | ForEach-Object { Write-Verbose $_ -Verbose:$verbose}
+        if ($CFGFILE)
+        {
+            $configFileForEXE3 | Set-Content ($outputFile+".config") -Encoding UTF8
+            Write-Output "Config file for EXE created"
+        }
     }
     else
     {
-        if (Test-Path $outputFile)
-        {
-            Write-Output "Output file $outputFile written"
-
-            if ($debug)
-            {
-                $cr.TempFiles | Where-Object { $_ -ilike "*.cs" } | Select-Object -First 1 | ForEach-Object {
-                    $dstSrc = ([System.IO.Path]::Combine([System.IO.Path]::GetDirectoryName($outputFile), [System.IO.Path]::GetFileNameWithoutExtension($outputFile)+".cs"))
-                    Write-Output "Source file name for debug copied: $($dstSrc)"
-                    Copy-Item -Path $_ -Destination $dstSrc -Force
-                }
-                $cr.TempFiles | Remove-Item -Verbose:$FALSE -Force -ErrorAction SilentlyContinue
-            }
-            if ($CFGFILE)
-            {
-                $configFileForEXE3 | Set-Content ($outputFile+".config") -Encoding UTF8
-                Write-Output "Config file for EXE created"
-            }
-        }
-        else
-        {
-            Write-Error -ErrorAction "Continue" "Output file $outputFile not written"
-        }
+        Write-Error -ErrorAction "Continue" "Output file $outputFile not written"
     }
+}
 
-    if ($requireAdmin -or $supportOS -or $longPaths)
-    { if (Test-Path $($outputFile+".win32manifest"))
-        {
-            Remove-Item $($outputFile+".win32manifest") -Verbose:$FALSE
-        }
+if ($requireAdmin -or $supportOS -or $longPaths)
+{ if (Test-Path $($outputFile+".win32manifest"))
+    {
+        Remove-Item $($outputFile+".win32manifest") -Verbose:$FALSE
     }
 }
