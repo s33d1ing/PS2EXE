@@ -1,105 +1,190 @@
-﻿#Requires -Version 3.0
+﻿#Requires -Version 2.0
 
 <#
-.SYNOPSIS
-Converts powershell scripts to standalone executables.
-.DESCRIPTION
-Converts powershell scripts to standalone executables. GUI output and input is activated with one switch,
-real windows executables are generated. You may use the graphical front end Win-PS2EXE for convenience.
+    .SYNOPSIS
+        Converts PowerShell scripts to standalone executables.
 
-Please see Remarks on project page for topics "GUI mode output formatting", "Config files", "Password security",
-"Script variables" and "Window in background in -noConsole mode".
+    .DESCRIPTION
+        Converts PowerShell scripts to standalone executables. GUI output and input is activated with one switch,
+        real windows executables are generated. You may use the graphical front end Win-PS2EXE for convenience.
 
-A generated executables has the following reserved parameters:
+        Please see Remarks on project page for topics "GUI mode output formatting", "Config files",
+        "Password security", "Script variables" and "Window in background in -noConsole mode".
 
--debug              Forces the executable to be debugged. It calls "System.Diagnostics.Debugger.Break()".
--extract:<FILENAME> Extracts the powerShell script inside the executable and saves it as FILENAME.
-                                        The script will not be executed.
--wait               At the end of the script execution it writes "Hit any key to exit..." and waits for a
-                                        key to be pressed.
--end                All following options will be passed to the script inside the executable.
-                                        All preceding options are used by the executable itself.
-.PARAMETER inputFile
-Powershell script to convert to executable
-.PARAMETER outputFile
-destination executable file name, defaults to inputFile with extension '.exe'
-.PARAMETER x86
-compile for 32-bit runtime only
-.PARAMETER x64
-compile for 64-bit runtime only
-.PARAMETER lcid
-location ID for the compiled executable. Current user culture if not specified
-.PARAMETER STA
-Single Thread Apartment mode
-.PARAMETER MTA
-Multi Thread Apartment mode
-.PARAMETER noConsole
-the resulting executable will be a Windows Forms app without a console window.
-You might want to pipe your output to Out-String to prevent a message box for every line of output
-(example: dir C:\ | Out-String)
-.PARAMETER credentialGUI
-use GUI for prompting credentials in console mode instead of console input
-.PARAMETER iconFile
-icon file name for the compiled executable
-.PARAMETER title
-title information (displayed in details tab of Windows Explorer's properties dialog)
-.PARAMETER description
-description information (not displayed, but embedded in executable)
-.PARAMETER company
-company information (not displayed, but embedded in executable)
-.PARAMETER product
-product information (displayed in details tab of Windows Explorer's properties dialog)
-.PARAMETER copyright
-copyright information (displayed in details tab of Windows Explorer's properties dialog)
-.PARAMETER trademark
-trademark information (displayed in details tab of Windows Explorer's properties dialog)
-.PARAMETER version
-version information (displayed in details tab of Windows Explorer's properties dialog)
-.PARAMETER configFile
-write a config file (<outputfile>.exe.config)
-.PARAMETER noConfigFile
-compatibility parameter
-.PARAMETER noOutput
-the resulting executable will generate no standard output (includes verbose and information channel)
-.PARAMETER noError
-the resulting executable will generate no error output (includes warning and debug channel)
-.PARAMETER requireAdmin
-if UAC is enabled, compiled executable will run only in elevated context (UAC dialog appears if required)
-.PARAMETER supportOS
-use functions of newest Windows versions (execute [Environment]::OSVersion to see the difference)
-.PARAMETER virtualize
-application virtualization is activated (forcing x86 runtime)
-.PARAMETER longPaths
-enable long paths ( > 260 characters) if enabled on OS (works only with Windows 10)
-.EXAMPLE
-Invoke-ps2exe C:\Data\MyScript.ps1
-Compiles C:\Data\MyScript.ps1 to C:\Data\MyScript.exe as console executable
-.EXAMPLE
-ps2exe -inputFile C:\Data\MyScript.ps1 -outputFile C:\Data\MyScriptGUI.exe -iconFile C:\Data\Icon.ico -noConsole -title "MyScript" -version 0.0.0.1
-Compiles C:\Data\MyScript.ps1 to C:\Data\MyScriptGUI.exe as graphical executable, icon and meta data
-.EXAMPLE
-Win-PS2EXE
-Start graphical front end to Invoke-ps2exe
-.NOTES
-Version: 0.5.0.19
-Date: 2020-02-15
-Author: Ingo Karstein, Markus Scholtes
-.LINK
-https://www.powershellgallery.com/packages/ps2exe
-https://gallery.technet.microsoft.com/PS2EXE-GUI-Convert-e7cb69d5
+        The generated executables has the following reserved parameters:
+
+            -Debug              Forces the executable to be debugged. It calls "System.Diagnostics.Debugger.Break()".
+
+            -Extract:<Path>     Extracts the powerShell script inside the executable and saves it as the specified Path.
+                                The script will not be executed.
+
+            -Wait               At the end of the script execution it writes "Hit any key to exit..." and waits for a key to be pressed.
+
+            -End                All following options will be passed to the script inside the executable.
+                                All preceding options are used by the executable itself and will not be passed to the script.
+
+    .PARAMETER InputFile
+        PowerShell script that you want to convert to executable
+
+    .PARAMETER OutputFile
+        Destination executable file name, defaults to InputFile with extension ".exe"
+
+    .PARAMETER IconFile
+        Icon file name for the compiled executable
+
+    .PARAMETER Title
+        Title information (displayed in details tab of Windows Explorer's properties dialog)
+
+    .PARAMETER Description
+        Description information (not displayed, but embedded in executable)
+
+    .PARAMETER Company
+        Company information (not displayed, but embedded in executable)
+
+    .PARAMETER Product
+        Product information (displayed in details tab of Windows Explorer's properties dialog)
+
+    .PARAMETER Copyright
+        Copyright information (displayed in details tab of Windows Explorer's properties dialog)
+
+    .PARAMETER Trademark
+        Trademark information (displayed in details tab of Windows Explorer's properties dialog)
+
+    .PARAMETER Version
+        Version information (displayed in details tab of Windows Explorer's properties dialog)
+
+    .PARAMETER LCID
+        Location ID for the compiled executable. Current user culture if not specified.
+
+    .PARAMETER Runtime20
+        This switch forces PS2EXE to create a config file for the generated executable that contains the
+        "supported .NET Framework versions" setting for .NET Framework 2.0/3.x for PowerShell 2.0
+
+    .PARAMETER Runtime40
+        This switch forces PS2EXE to create a config file for the generated executable that contains the
+        "supported .NET Framework versions" setting for .NET Framework 4.x for PowerShell 3.0 or higher
+
+    .PARAMETER x86
+        Compile for 32-bit runtime only
+
+    .PARAMETER x64
+        Compile for 64-bit runtime only
+
+    .PARAMETER STA
+        Single Thread Apartment mode
+
+    .PARAMETER MTA
+        Multi Thread Apartment mode
+
+    .PARAMETER NoConsole
+        The resulting executable will be a Windows Forms app without a console window.
+
+        You might want to pipe your output to Out-String to prevent a message box for every line of output
+        (Example: dir C:\ | Out-String)
+
+    .PARAMETER CredentialGUI
+        Use GUI for prompting credentials in console mode instead of console input
+
+    .PARAMETER ConfigFile
+        Write a config file (<OutputFile>.exe.config)
+
+    .PARAMETER NoOutput
+        The resulting executable will generate no standard output (includes verbose and information channel)
+
+    .PARAMETER NoError
+        The resulting executable will generate no error output (includes warning and debug channel)
+
+    .PARAMETER RequireAdmin
+        If UAC is enabled, compiled executable will run only in elevated context (UAC dialog appears if required)
+
+    .PARAMETER SupportOS
+        Use functions of newest Windows versions (execute [System.Environment]::OSVersion to see the difference)
+
+    .PARAMETER Virtualize
+        Application virtualization is activated (forcing x86 runtime)
+
+    .PARAMETER LongPaths
+        Enable long paths (>260 characters) if enabled on OS (works only with Windows 10)
+
+    .EXAMPLE
+        ps2exe.ps1 C:\Data\MyScript.ps1
+        Compiles "C:\Data\MyScript.ps1" to "C:\Data\MyScript.exe" as a console executable
+
+    .EXAMPLE
+        ps2exe.ps1 -InputFile C:\Data\MyScript.ps1 -OutputFile C:\Data\MyScriptGUI.exe -IconFile C:\Data\Icon.ico -NoConsole -Title "MyScript" -Version 0.1.0
+        Compiles "C:\Data\MyScript.ps1" to "C:\Data\MyScriptGUI.exe" as a graphical executable, with icon and version metadata
+
+    .NOTES
+        Version: 0.5.0.19
+        Date: 2020-02-15
+        Author: Ingo Karstein, Markus Scholtes, Garrett Dees
+
+    .LINK
+        https://gallery.technet.microsoft.com/PS2EXE-GUI-Convert-e7cb69d5
 #>
 
-Param([STRING]$inputFile = $NULL, [STRING]$outputFile = $NULL, [SWITCH]$verbose, [SWITCH]$debug, [SWITCH]$x86, [SWITCH]$x64,
-    [int]$lcid, [SWITCH]$STA, [SWITCH]$MTA, [SWITCH]$noConsole, [SWITCH]$credentialGUI, [STRING]$iconFile = $NULL,
-    [STRING]$title, [STRING]$description, [STRING]$company, [STRING]$product, [STRING]$copyright, [STRING]$trademark, [STRING]$version,
-    [SWITCH]$configFile, [SWITCH]$noConfigFile, [SWITCH]$noOutput, [SWITCH]$noError, [SWITCH]$requireAdmin, [SWITCH]$supportOS,
-    [SWITCH]$virtualize, [SWITCH]$longPaths)
+
+[CmdletBinding()]
+param (
+    [Parameter(Position = 0)]
+    [string]$InputFile = [string]::Empty,
+    [Parameter(Position = 1)]
+    [string]$OutputFile = [string]::Empty,
+    [Parameter(Position = 2)]
+    [string]$IconFile = [string]::Empty,
+
+    [string]$Title,         # File Description
+    [string]$Description,   # Comments (Not shown in details)
+    [string]$Company,       # Company (Not shown in details)
+    [string]$Product,       # Product Name
+    [string]$Copyright,     # Copyright
+    [string]$Trademark,     # Legal Trademarks
+    [string]$Version,       # File & Product Version(s)
+
+    [nullable[int]]$LCID,
+    [switch]$Runtime20,
+    [switch]$Runtime40,
+    [switch]$x86,
+    [switch]$x64,
+    [switch]$STA,
+    [switch]$MTA,
+
+    [switch]$NoConsole,
+    [switch]$CredentialGUI,
+    [switch]$ConfigFile,
+    [switch]$NoOutput,
+    [switch]$NoError,
+    [switch]$RequireAdmin,
+    [switch]$SupportOS,
+    [switch]$Virtualize,
+    [switch]$LongPaths,
+
+    # [Parameter(DontShow = $true)]
+    [switch]$Nested
+)
+
+
+$ErrorActionPreference = 'Stop'
+
+if ($PSBoundParameters.ContainsKey('Debug')) { $DebugPreference = 'Continue' }
+if ($PSBoundParameters.ContainsKey('Verbose')) { $VerbosePreference = 'Continue' }
+
+# Populate automatic variables that are not available in PowerShell 2.0
+if ($null -eq $PSCommandPath) { $PSCommandPath = $MyInvocation.MyCommand.Definition }
+if ($null -eq $PSScriptRoot) { $PSScriptRoot = Split-Path -Path $MyInvocation.MyCommand.Definition }
+
+
+function Get-FullName ([string]$Path) {
+    $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)
+}
+
 
 <################################################################################>
 <##                                                                            ##>
 <##      PS2EXE-GUI v0.5.0.19                                                  ##>
 <##      Written by: Ingo Karstein (http://blog.karstein-consulting.com)       ##>
 <##      Reworked and GUI support by Markus Scholtes                           ##>
+<##      Refactor by Garrett Dees                                              ##>
 <##                                                                            ##>
 <##      This script is released under Microsoft Public Licence                ##>
 <##          that can be downloaded here:                                      ##>
@@ -107,41 +192,66 @@ Param([STRING]$inputFile = $NULL, [STRING]$outputFile = $NULL, [SWITCH]$verbose,
 <##                                                                            ##>
 <################################################################################>
 
-Write-Output "PS2EXE-GUI v0.5.0.19 by Ingo Karstein, reworked and GUI support by Markus Scholtes`n"
 
-if ([STRING]::IsNullOrEmpty($inputFile))
-{
-    Write-Output "Usage:`n"
-    Write-Output "Invoke-ps2exe [-inputFile] '<filename>' [[-outputFile] '<filename>'] [-verbose]"
-    Write-Output "              [-debug] [-x86|-x64] [-lcid <id>] [-STA|-MTA] [-noConsole]"
-    Write-Output "              [-credentialGUI] [-iconFile '<filename>'] [-title '<title>'] [-description '<description>']"
-    Write-Output "              [-company '<company>'] [-product '<product>'] [-copyright '<copyright>'] [-trademark '<trademark>']"
-    Write-Output "              [-version '<version>'] [-configFile] [-noOutput] [-noError] [-requireAdmin] [-supportOS]"
-    Write-Output "              [-virtualize] [-longPaths]""`n"
-    Write-Output "    inputFile = Powershell script that you want to convert to executable"
-    Write-Output "   outputFile = destination executable file name, defaults to inputFile with extension '.exe'"
-    Write-Output "   x86 or x64 = compile for 32-bit or 64-bit runtime only"
-    Write-Output "         lcid = location ID for the compiled executable. Current user culture if not specified"
-    Write-Output "   STA or MTA = 'Single Thread Apartment' or 'Multi Thread Apartment' mode"
-    Write-Output "    noConsole = the resulting executable will be a Windows Forms app without a console window"
-    Write-Output "credentialGUI = use GUI for prompting credentials in console mode"
-    Write-Output "     iconFile = icon file name for the compiled executable"
-    Write-Output "        title = title information (displayed in details tab of Windows Explorer's properties dialog)"
-    Write-Output "  description = description information (not displayed, but embedded in executable)"
-    Write-Output "      company = company information (not displayed, but embedded in executable)"
-    Write-Output "      product = product information (displayed in details tab of Windows Explorer's properties dialog)"
-    Write-Output "    copyright = copyright information (displayed in details tab of Windows Explorer's properties dialog)"
-    Write-Output "    trademark = trademark information (displayed in details tab of Windows Explorer's properties dialog)"
-    Write-Output "      version = version information (displayed in details tab of Windows Explorer's properties dialog)"
-    Write-Output "   configFile = write a config file (<outputfile>.exe.config)"
-    Write-Output "     noOutput = the resulting executable will generate no standard output (includes verbose and information channel)"
-    Write-Output "      noError = the resulting executable will generate no error output (includes warning and debug channel)"
-    Write-Output " requireAdmin = if UAC is enabled, compiled executable run only in elevated context (UAC dialog appears if required)"
-    Write-Output "    supportOS = use functions of newest Windows versions (execute [Environment]::OSVersion to see the difference)"
-    Write-Output "   virtualize = application virtualization is activated (forcing x86 runtime)"
-    Write-Output "    longPaths = enable long paths ( > 260 characters) if enabled on OS (works only with Windows 10)`n"
-    Write-Output "Input file not specified!"
-    return
+if (-not $Nested) {
+    Write-Output 'PS2EXE-GUI v0.5.0.19 by Ingo Karstein'
+    Write-Output 'Reworked and GUI support by Markus Scholtes'
+    Write-Output 'Refactor by Garrett Dees' `r`n
+}
+
+
+if ([string]::IsNullOrEmpty($InputFile)) {
+    $help = New-Object -TypeName System.Text.StringBuilder
+
+    [void]$help.AppendLine('Usage:')
+    [void]$help.AppendLine()
+    [void]$help.AppendLine('ps2exe.ps1 [-InputFile] "<FileName>" [[-OutputFile] "<FileName>"] [[-IconFile] "<FileName>"]')
+    [void]$help.AppendLine()
+    [void]$help.AppendLine('    [-Title "<Title>"] [-Description "<Description>"] [-Company "<Company>"] [-Product "<Product>"]')
+    [void]$help.AppendLine('    [-Copyright "<Copyright>"] [-Trademark "<Trademark>"] [-Version "<Version>"]')
+    [void]$help.AppendLine()
+    [void]$help.AppendLine('    [-LCID <ID>] [-Runtime20|-Runtime40] [-x86|-x64] [-STA|-MTA]')
+    [void]$help.AppendLine()
+    [void]$help.AppendLine('    [-NoConsole] [-CredentialGUI] [-ConfigFile] [-NoOutput] [-NoError] ')
+    [void]$help.AppendLine('    [-RequireAdmin] [-SupportOS] [-Virtualize] [-LongPaths]')
+    [void]$help.AppendLine()
+    [void]$help.AppendLine()
+    [void]$help.AppendLine('    InputFile = PowerShell script that you want to convert to executable')
+    [void]$help.AppendLine('   OutputFile = Destination executable file name, defaults to InputFile with extension ".exe"')
+    [void]$help.AppendLine('     IconFile = Icon file name for the compiled executable')
+    [void]$help.AppendLine()
+    [void]$help.AppendLine('        Title = Title information (displayed in details tab of Windows Explorer''s properties dialog)')
+    [void]$help.AppendLine('  Description = Description information (not displayed, but embedded in executable)')
+    [void]$help.AppendLine('      Company = Company information (not displayed, but embedded in executable)')
+    [void]$help.AppendLine('      Product = Product information (displayed in details tab of Windows Explorer''s properties dialog)')
+    [void]$help.AppendLine('    Copyright = Copyright information (displayed in details tab of Windows Explorer''s properties dialog)')
+    [void]$help.AppendLine('    Trademark = Trademark information (displayed in details tab of Windows Explorer''s properties dialog)')
+    [void]$help.AppendLine('      Version = Version information (displayed in details tab of Windows Explorer''s properties dialog)')
+    [void]$help.AppendLine()
+    [void]$help.AppendLine('         LCID = Location ID for the compiled executable. Current user culture if not specified')
+    [void]$help.AppendLine('    Runtime20 = This switch forces PS2EXE to create a config file for the generated executable that contains the')
+    [void]$help.AppendLine('                "supported .NET Framework versions" setting for .NET Framework 2.0/3.x for PowerShell 2.0')
+    [void]$help.AppendLine('    Runtime40 = This switch forces PS2EXE to create a config file for the generated executable that contains the')
+    [void]$help.AppendLine('                "supported .NET Framework versions" setting for .NET Framework 4.x for PowerShell 3.0 or higher')
+    [void]$help.AppendLine('   x86 or x64 = Compile for 32-bit or 64-bit runtime only')
+    [void]$help.AppendLine('   STA or MTA = "Single Thread Apartment" or "Multi Thread Apartment" mode')
+    [void]$help.AppendLine()
+    [void]$help.AppendLine('    NoConsole = The resulting executable will be a Windows Forms app without a console window')
+    [void]$help.AppendLine('CredentialGUI = Use GUI for prompting credentials in console mode instead of console input')
+    [void]$help.AppendLine('   ConfigFile = Write a config file (<OutputFile>.exe.config)')
+    [void]$help.AppendLine('     NoOutput = The resulting executable will generate no standard output (includes verbose and information channel)')
+    [void]$help.AppendLine('      NoError = The resulting executable will generate no error output (includes warning and debug channel)')
+    [void]$help.AppendLine(' RequireAdmin = If UAC is enabled, compiled executable run only in elevated context (UAC dialog appears if required)')
+    [void]$help.AppendLine('    SupportOS = Use functions of newest Windows versions (execute [System.Environment]::OSVersion to see the difference)')
+    [void]$help.AppendLine('   Virtualize = Application virtualization is activated (forcing x86 runtime)')
+    [void]$help.AppendLine('    LongPaths = Enable long paths (>260 characters) if enabled on OS (works only with Windows 10)')
+    [void]$help.AppendLine()
+    [void]$help.AppendLine()
+    [void]$help.AppendLine('Input file not specified!')
+
+    Write-Output $help.ToString()
+
+    exit -1
 }
 
 # retrieve absolute paths independent if path is given relative oder absolute
