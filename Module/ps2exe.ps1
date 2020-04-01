@@ -3154,53 +3154,81 @@ else {
 
 $programFramework = $sb.ToString()
 
-$configFileForEXE3 = "<?xml version=""1.0"" encoding=""utf-8"" ?>`r`n<configuration><startup><supportedRuntime version=""v4.0"" sku="".NETFramework,Version=v4.0"" /></startup></configuration>"
-if ($longPaths)
-{
-    $configFileForEXE3 = "<?xml version=""1.0"" encoding=""utf-8"" ?>`r`n<configuration><startup><supportedRuntime version=""v4.0"" sku="".NETFramework,Version=v4.0"" /></startup><runtime><AppContextSwitchOverrides value=""Switch.System.IO.UseLegacyPathHandling=false;Switch.System.IO.BlockLongPaths=false"" /></runtime></configuration>"
+$ConfigFileForEXE2 = @'
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <startup>
+    <supportedRuntime version="v2.0.50727"/>
+  </startup>
+</configuration>
+'@
+
+$ConfigFileForEXE3 = @'
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <startup>
+    <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.0"/>
+  </startup>
+</configuration>
+'@
+
+if ($LongPaths) {
+
+$ConfigFileForEXE3 = @'
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <startup>
+    <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.0"/>
+  </startup>
+  <runtime>
+    <AppContextSwitchOverrides value="Switch.System.IO.UseLegacyPathHandling=false;Switch.System.IO.BlockLongPaths=false"/>
+  </runtime>
+</configuration>
+'@
+
 }
+
 
 Write-Output "Compiling file...`n"
-$cr = $cop.CompileAssemblyFromSource($cp, $programFrame)
-if ($cr.Errors.Count -gt 0)
-{
-    if (Test-Path $outputFile)
-    {
-        Remove-Item $outputFile -Verbose:$FALSE
-    }
-    Write-Error -ErrorAction Continue "Could not create the PowerShell .exe file because of compilation errors. Use -verbose parameter to see details."
-    $cr.Errors | ForEach-Object { Write-Verbose $_ -Verbose:$verbose}
-}
-else
-{
-    if (Test-Path $outputFile)
-    {
-        Write-Output "Output file $outputFile written"
 
-        if ($debug)
-        {
-            $cr.TempFiles | Where-Object { $_ -ilike "*.cs" } | Select-Object -First 1 | ForEach-Object {
-                $dstSrc = ([System.IO.Path]::Combine([System.IO.Path]::GetDirectoryName($outputFile), [System.IO.Path]::GetFileNameWithoutExtension($outputFile)+".cs"))
+$compilerResults = $codeProvider.CompileAssemblyFromSource($compilerParameters, $programFramework)
+
+if ($compilerResults.Errors.Count -gt 0) {
+    if (Test-Path $OutputFile) {
+        Remove-Item $OutputFile -Verbose:$false
+    }
+
+    Write-Error -ErrorAction Continue "Could not create the PowerShell .exe file because of compilation errors. Use -verbose parameter to see details."
+    $compilerResults.Errors | ForEach-Object { Write-Verbose $_ -Verbose:$PSBoundParameters.ContainsKey('Verbose') }
+}
+else {
+    if (Test-Path $OutputFile) {
+        Write-Output "Output file $OutputFile written"
+
+        if ($PSBoundParameters.ContainsKey('Debug')) {
+            $compilerResults.TempFiles | Where-Object { $_ -like "*.cs" } | Select-Object -First 1 | ForEach-Object {
+                $dstSrc = ([System.IO.Path]::Combine([System.IO.Path]::GetDirectoryName($OutputFile), [System.IO.Path]::GetFileNameWithoutExtension($OutputFile) + ".cs"))
+
                 Write-Output "Source file name for debug copied: $($dstSrc)"
                 Copy-Item -Path $_ -Destination $dstSrc -Force
             }
-            $cr.TempFiles | Remove-Item -Verbose:$FALSE -Force -ErrorAction Ignore
+
+            $compilerResults.TempFiles | Remove-Item -Verbose:$false -Force -ErrorAction SilentlyContinue
         }
-        if ($CFGFILE)
-        {
-            $configFileForEXE3 | Set-Content ($outputFile+".config") -Encoding UTF8
-            Write-Output "Config file for EXE created"
+        if ($ConfigFile) {
+            if ($Runtime20) { $ConfigFileForEXE2 | Set-Content ($OutputFile+".config") -Encoding UTF8 }
+            if ($Runtime40) { $ConfigFileForEXE3 | Set-Content ($OutputFile+".config") -Encoding UTF8 }
+
+            Write-Output "Config file for EXE created" `r`n
         }
     }
-    else
-    {
-        Write-Error -ErrorAction "Continue" "Output file $outputFile not written"
+    else {
+        Write-Error"Output file $OutputFile not written" -ErrorAction Continue
     }
 }
 
-if ($requireAdmin -or $supportOS -or $longPaths)
-{ if (Test-Path $($outputFile+".win32manifest"))
-    {
-        Remove-Item $($outputFile+".win32manifest") -Verbose:$FALSE
+if ($RequireAdmin -or $SupportOS -or $LongPaths) {
+    if (Test-Path $($OutputFile+".win32manifest")) {
+        Remove-Item $($OutputFile+".win32manifest") -Verbose:$false
     }
 }
