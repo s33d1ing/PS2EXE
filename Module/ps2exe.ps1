@@ -254,108 +254,139 @@ if ([string]::IsNullOrEmpty($InputFile)) {
     exit -1
 }
 
-# retrieve absolute paths independent if path is given relative oder absolute
-$inputFile = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($inputFile)
-if ([STRING]::IsNullOrEmpty($outputFile))
-{
-    $outputFile = ([System.IO.Path]::Combine([System.IO.Path]::GetDirectoryName($inputFile), [System.IO.Path]::GetFileNameWithoutExtension($inputFile)+".exe"))
-}
-else
-{
-    $outputFile = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($outputFile)
-}
 
-if (!(Test-Path $inputFile -PathType Leaf))
-{
-    Write-Error "Input file $($inputfile) not found!"
-    return
-}
+switch ($PSVersionTable.PSVersion.Major) {
+    { $_ -ge 4 } {
+        Write-Output 'You are using PowerShell 4.0 or above.'
+        $PSVersion = 4
+    }
 
-if ($inputFile -eq $outputFile)
-{
-    Write-Error "Input file is identical to output file!"
-    return
-}
+    { $_ -eq 3 } {
+        Write-Output 'You are using PowerShell 3.0.'
+        $PSVersion = 3
+    }
 
-if (($outputFile -notlike "*.exe") -and ($outputFile -notlike "*.com"))
-{
-    Write-Error "Output file must have extension '.exe' or '.com'!"
-    return
-}
+    { $_ -eq 2 } {
+        Write-Output 'You are using PowerShell 2.0.'
+        $PSVersion = 2
+    }
 
-if (!([STRING]::IsNullOrEmpty($iconFile)))
-{
-    # retrieve absolute path independent if path is given relative oder absolute
-    $iconFile = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($iconFile)
-
-    if (!(Test-Path $iconFile -PathType Leaf))
-    {
-        Write-Error "Icon file $($iconFile) not found!"
-        return
+    default {
+        Write-Error 'The PowerShell version is unknown!'
+        exit -1
     }
 }
 
-if ($requireAdmin -and $virtualize)
-{
-    Write-Error "-requireAdmin cannot be combined with -virtualize"
-    return
+
+$InputFile = Get-FullName -Path $InputFile
+
+if ([string]::IsNullOrEmpty($OutputFile)) {
+    $OutputFile = [System.IO.Path]::Combine(
+        [System.IO.Path]::GetDirectoryName($InputFile),
+        [System.IO.Path]::GetFileNameWithoutExtension($InputFile) + '.exe'
+    )
 }
-if ($supportOS -and $virtualize)
-{
-    Write-Error "-supportOS cannot be combined with -virtualize"
-    return
-}
-if ($longPaths -and $virtualize)
-{
-    Write-Error "-longPaths cannot be combined with -virtualize"
-    return
+else {
+    $OutputFile = Get-FullName -Path $OutputFile
 }
 
-$CFGFILE = $FALSE
-if ($configFile)
-{ $CFGFILE = $TRUE
-    if ($noConfigFile)
-    {
-        Write-Error "-configFile cannot be combined with -noConfigFile"
-        return
-    }
-}
-if (!$CFGFILE -and $longPaths)
-{
-    Write-Warning "Forcing generation of a config file, since the option -longPaths requires this"
-    $CFGFILE = $TRUE
+
+$PSBoundParameters.GetEnumerator() | ForEach-Object { Write-Debug ('${0} = {1}' -f $_.Key, $_.Value) }
+# $args | ForEach-Object -Begin { $i = 0 } -Process { Write-Debug ('$args[{0}] = {1}' -f $i++, $_) }
+
+
+#region Parameter Validation
+
+if (-not (Test-Path -Path $InputFile -PathType Leaf)) {
+    Write-Error ('Input file {0} not found!' -f $InputFile)
+    exit -1
 }
 
-if ($STA -and $MTA)
-{
-    Write-Error "You cannot use switches -STA and -MTA at the same time!"
-    return
+if ($InputFile -eq $OutputFile) {
+    Write-Error 'Input file is identical to output file!'
+    exit -1
 }
 
-if (!$MTA -and !$STA)
-{
-    # Set default apartment mode for powershell version if not set by parameter
-    $STA = $TRUE
+if (($OutputFile -notlike '*.exe') -and ($OutputFile -notlike '*.com')) {
+    Write-Error 'Output file must have ".exe" or ".com" extension!'
+    exit -1
 }
 
-# escape escape sequences in version info
-$title = $title -replace "\\", "\\"
-$product = $product -replace "\\", "\\"
-$copyright = $copyright -replace "\\", "\\"
-$trademark = $trademark -replace "\\", "\\"
-$description = $description -replace "\\", "\\"
-$company = $company -replace "\\", "\\"
+if (-not [string]::IsNullOrEmpty($IconFile)) {
+    $IconFile = Get-FullName -Path $IconFile
 
-if (![STRING]::IsNullOrEmpty($version))
-{ # check for correct version number information
-    if ($version -notmatch "(^\d+\.\d+\.\d+\.\d+$)|(^\d+\.\d+\.\d+$)|(^\d+\.\d+$)|(^\d+$)")
-    {
-        Write-Error "Version number has to be supplied in the form n.n.n.n, n.n.n, n.n or n (with n as number)!"
-        return
+    if (-not (Test-Path -Path $IconFile -PathType Leaf)) {
+        Write-Error ('Icon file  not found!' -f $IconFile)
+        exit -1
     }
 }
 
-Write-Output ""
+if ($RequireAdmin -and $Virtualize) {
+    Write-Error '-RequireAdmin cannot be combined with -Virtualize'
+    exit -1
+}
+
+if ($SupportOS -and $Virtualize) {
+    Write-Error '-SupportOS cannot be combined with -Virtualize'
+    exit -1
+}
+
+if ($LongPaths -and $Virtualize) {
+    Write-Error '-LongPaths cannot be combined with -Virtualize'
+    exit -1
+}
+
+if ($Runtime20 -and $Runtime40) {
+    Write-Error '-Runtime20 cannot be combined with -Runtime40'
+    exit -1
+}
+
+if ((-not $Runtime20) -and (-not $Runtime40)) {
+    if ($PSVersion -ge 3) { $Runtime40 = $true }
+    else { $Runtime20 = $true }
+}
+
+if ($Runtime20 -and $LongPaths) {
+    Write-Error 'Long paths are only available with .NET 4'
+    exit -1
+}
+
+if ((-not $ConfigFile) -and $LongPaths) {
+    Write-Warning 'Forcing generation of a config file, since the option -longPaths requires this' `r`n
+}
+
+if ($STA -and $MTA) {
+    Write-Error 'You cannot use switches -STA and -MTA at the same time!'
+    exit -1
+}
+
+if (($PSVersion -lt 3) -and $Runtime40) {
+    Write-Error 'You need to run ps2exe in an Powershell 3.0 or higher environment to use parameter -Runtime40'
+    exit -1
+}
+
+# Set default apartment mode for powershell version if not set by parameter
+if (($PSVersion -lt 3) -and (-not $MTA) -and (-not $STA)) { $MTA = $true }
+if (($PSVersion -ge 3) -and (-not $MTA) -and (-not $STA)) { $STA = $true }
+
+# Escape escape sequences in version info
+$Title = $Title -replace '\\', '\\'
+$Product = $Product -replace '\\', '\\'
+$Copyright = $Copyright -replace '\\', '\\'
+$Trademark = $Trademark -replace '\\', '\\'
+$Description = $Description -replace '\\', '\\'
+$Company = $Company -replace '\\', '\\'
+
+if (-not [string]::IsNullOrEmpty($Version)) {
+    # Check for correct version number information
+    if ($Version -notmatch '^(0|[1-9]\d*)(?:\.(0|[1-9]\d*))?(?:\.(0|[1-9]\d*))?(?:\.(0|[1-9]\d*))?$') {
+        Write-Error 'Version number must be supplied in the form of n, n.n, n.n.n, or n.n.n.n!'
+        exit -1
+    }
+}
+
+#endregion
+
 
 $type = ('System.Collections.Generic.Dictionary`2') -as "Type"
 $type = $type.MakeGenericType( @( ("System.String" -as "Type"), ("system.string" -as "Type") ) )
