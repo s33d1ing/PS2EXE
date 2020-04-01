@@ -388,6 +388,64 @@ if (-not [string]::IsNullOrEmpty($Version)) {
 #endregion
 
 
+if (($PSVersion -ge 3) -and $Runtime20) {
+    Write-Output 'To create an executable for PowerShell 2.0 in PowerShell 3.0 or above this script will relaunch in PowerShell 2.0...' `r`n
+
+    if ($Runtime20 -and ($MyInvocation.MyCommand.CommandType -ne 'ExternalScript')) {
+        Write-Warning 'The parameter -Runtime20 is not supported for compiled ps2exe.ps1 scripts.'
+        Write-Warning 'Compile ps2exe.ps1 with parameter -Runtime20 and call the generated executable (without -Runtime20).'
+        exit -1
+    }
+
+
+    $arguments = New-Object -TypeName System.Text.StringBuilder
+
+    [void]$arguments.AppendFormat('-InputFile "{0}" -OutputFile "{1}" ', $InputFile, $OutputFile)
+
+    if ($PSBoundParameters.ContainsKey('Debug')) { [void]$arguments.Append('-Debug ') }
+    if ($PSBoundParameters.ContainsKey('Verbose')) { [void]$arguments.Append('-Verbose ') }
+
+    if (-not [string]::IsNullOrEmpty($IconFile)) { [void]$arguments.AppendFormat('-IconFile "{0}" ', $IconFile) }
+    if (-not [string]::IsNullOrEmpty($Title)) { [void]$arguments.AppendFormat('-Title "{0}" ', $Title) }
+    if (-not [string]::IsNullOrEmpty($Description)) { [void]$arguments.AppendFormat('-Description "{0}" ', $Description) }
+    if (-not [string]::IsNullOrEmpty($Company)) { [void]$arguments.AppendFormat('-Company "{0}" ', $Company) }
+    if (-not [string]::IsNullOrEmpty($Product)) { [void]$arguments.AppendFormat('-Product "{0}" ', $Product) }
+    if (-not [string]::IsNullOrEmpty($Copyright)) { [void]$arguments.AppendFormat('-Copyright "{0}" ', $Copyright) }
+    if (-not [string]::IsNullOrEmpty($Trademark)) { [void]$arguments.AppendFormat('-Trademark "{0}" ', $Trademark) }
+    if (-not [string]::IsNullOrEmpty($Version)) { [void]$arguments.AppendFormat('-Version "{0}" ', $Version) }
+
+    if ($null -ne $LCID) { [void]$arguments.AppendFormat('-LCID {0} ', $LCID) }
+
+    if ($Runtime20.IsPresent) { [void]$arguments.Append('-Runtime20 ') }
+    # if ($Runtime40.IsPresent) { [void]$arguments.Append('-Runtime40 ') }
+
+    if ($x86.IsPresent) { [void]$arguments.Append('-x86 ') }
+    if ($x64.IsPresent) { [void]$arguments.Append('-x64 ') }
+
+    if ($STA.IsPresent) { [void]$arguments.Append('-STA ') }
+    if ($MTA.IsPresent) { [void]$arguments.Append('-MTA ') }
+
+    if ($NoConsole.IsPresent) { [void]$arguments.Append('-NoConsole ') }
+    if ($NoOutput.IsPresent) { [void]$arguments.Append('-NoOutput ') }
+    if ($NoError.IsPresent) { [void]$arguments.Append('-NoError ') }
+    if ($RequireAdmin.IsPresent) { [void]$arguments.Append('-RequireAdmin ') }
+    if ($Virtualize.IsPresent) { [void]$arguments.Append('-Virtualize ') }
+    if ($CredentialGUI.IsPresent) { [void]$arguments.Append('-CredentialGUI ') }
+    if ($SupportOS.IsPresent) { [void]$arguments.Append('-SupportOS ') }
+    if ($ConfigFile.IsPresent) { [void]$arguments.Append('-ConfigFile ') }
+
+    [void]$arguments.Append('-Nested')
+
+
+    $command = '. "{0}\powershell.exe" -Version 2.0 -Command ''& "{1}" {2}''' -f $PSHOME, $PSCommandPath, $arguments.ToString()
+
+    Write-Debug ('Invoking: {0}' -f $command)
+    Invoke-Expression -Command $command
+
+    exit 0
+}
+
+
 $type = ('System.Collections.Generic.Dictionary`2') -as "Type"
 $type = $type.MakeGenericType( @( ("System.String" -as "Type"), ("system.string" -as "Type") ) )
 $o = [Activator]::CreateInstance($type)
