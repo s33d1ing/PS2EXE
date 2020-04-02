@@ -6,9 +6,9 @@ With PowerShell 5.x support and graphical front end.
 
 Module version.
 
-Author: Markus Scholtes  
-Version: 1.0.3  
-Date: 2020-02-15  
+Author: Markus Scholtes, Garrett Dees  
+Version: 1.1.0  
+Date: 2020-04-02  
 
 You find the script based version here: [PS2EXE-GUI: "Convert" PowerShell Scripts to EXE Files with GUI](https://gallery.technet.microsoft.com/PS2EXE-GUI-Convert-e7cb69d5).
 
@@ -160,6 +160,9 @@ $Host.UI.RawUI.FlushInputBuffer()
 
 
 ## Changes:
+### 1.1.0 / 2020-04-02
+- **G. Dees:** Refactor of PS2EXE (still backwards compatible)
+
 ### 1.0.3 / 2020-02-15
 - Converted files from UTF-16 to UTF-8 to allow git diff
 - Ignore control keys in secure string request in console mode

@@ -12,7 +12,7 @@
 RootModule = 'ps2exe.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.3'
+ModuleVersion = '1.1.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -37,7 +37,7 @@ Or use Win-PS2EXE as a graphical front end to the compiler.
 '@
 
 # Minimum version of the Windows PowerShell engine required by this module
-PowerShellVersion = '3.0'
+PowerShellVersion = '2.0'
 
 # Name of the Windows PowerShell host required by this module
 # PowerShellHostName = ''
@@ -46,7 +46,7 @@ PowerShellVersion = '3.0'
 # PowerShellHostVersion = ''
 
 # Minimum version of Microsoft .NET Framework required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
-DotNetFrameworkVersion = '4.0'
+DotNetFrameworkVersion = '2.0'
 
 # Minimum version of the common language runtime (CLR) required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
 # CLRVersion = ''
@@ -111,6 +111,11 @@ PrivateData = @{
 
 		# ReleaseNotes of this module
 		ReleaseNotes = @'
+# 1.1.0 / 2020-04-02
+- G. Dees: Refactor of PS2EXE (still backwards compatible)
+# 1.0.3 / 2020-02-15
+- Converted files from UTF-16 to UTF-8 to allow git diff
+- Ignore control keys in secure string request in console mode
 # 1.0.2 / 2020-02-15
 - Ignore control keys in secure string request in console mode
 # 1.0.1 / 2019-12-16

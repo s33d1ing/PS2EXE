@@ -115,8 +115,8 @@
         Compiles "C:\Data\MyScript.ps1" to "C:\Data\MyScriptGUI.exe" as a graphical executable, with icon and version metadata
 
     .NOTES
-        Version: 0.5.0.19
-        Date: 2020-02-15
+        Version: 0.5.1.0
+        Date: 2020-04-02
         Author: Ingo Karstein, Markus Scholtes, Garrett Dees
 
         PowerShell 2.0 incompatibilities:
@@ -189,7 +189,7 @@ function Get-FullName ([string]$Path) {
 
 <################################################################################>
 <##                                                                            ##>
-<##      PS2EXE-GUI v0.5.0.19                                                  ##>
+<##      PS2EXE-GUI v0.5.1.0                                                   ##>
 <##      Written by: Ingo Karstein (http://blog.karstein-consulting.com)       ##>
 <##      Reworked and GUI support by Markus Scholtes                           ##>
 <##      Refactor by Garrett Dees                                              ##>
@@ -198,11 +198,11 @@ function Get-FullName ([string]$Path) {
 <##          that can be downloaded here:                                      ##>
 <##          http://www.microsoft.com/opensource/licenses.mspx#Ms-PL           ##>
 <##                                                                            ##>
-<################################################################################>
+<############################################################################## #>
 
 
 if (-not $Nested) {
-    Write-Output 'PS2EXE-GUI v0.5.0.19 by Ingo Karstein'
+    Write-Output 'PS2EXE-GUI v0.5.1.0 by Ingo Karstein'
     Write-Output 'Reworked and GUI support by Markus Scholtes'
     Write-Output 'Refactor by Garrett Dees'
 }
@@ -2793,7 +2793,7 @@ if (-not $NoError) {
 [void]$framework.AppendLine()
 [void]$framework.AppendLine('        public override Version Version')
 [void]$framework.AppendLine('        {')
-[void]$framework.AppendLine('            get { return new Version(0, 5, 0, 19); }')
+[void]$framework.AppendLine('            get { return new Version(0, 5, 1, 0); }')
 [void]$framework.AppendLine('        }')
 
 [void]$framework.AppendLine()
