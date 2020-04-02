@@ -131,6 +131,8 @@
 #>
 
 
+function Invoke-PS2EXE {
+
 [CmdletBinding()]
 param (
     [Parameter(Position = 0)]
@@ -257,7 +259,8 @@ if ([string]::IsNullOrEmpty($InputFile)) {
 
     Write-Output $help.ToString()
 
-    exit -1
+    # exit
+    return
 }
 
 
@@ -3189,7 +3192,7 @@ else {
         }
     }
     else {
-        Write-Error ('Output file {0} not written' -f $OutputFile) -ErrorAction Continue
+        Write-Error ('Output file {0} not written' -f $OutputFile) # -ErrorAction Continue
     }
 }
 
@@ -3197,4 +3200,6 @@ if ($RequireAdmin -or $SupportOS -or $LongPaths) {
     if (Test-Path -Path ($OutputFile + '.win32manifest')) {
         Remove-Item -Path ($OutputFile + '.win32manifest') -Force -Verbose:$false
     }
+}
+
 }
