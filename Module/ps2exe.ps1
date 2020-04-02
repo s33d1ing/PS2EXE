@@ -389,7 +389,7 @@ if ($STA -and $MTA) {
 }
 
 if (($PSVersion -lt 3) -and $Runtime40) {
-    Write-Error 'You need to run ps2exe in an Powershell 3.0 or higher environment to use parameter -Runtime40'
+    Write-Error 'You need to run PS2EXE in an PowerShell 3.0 or higher environment to use parameter -Runtime40'
 }
 
 

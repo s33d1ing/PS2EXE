@@ -2,7 +2,7 @@
 
 Overworking of the great script of Ingo Karstein with GUI support.  
 The GUI output and input is activated with one switch, real windows executables are generated.  
-With Powershell 5.x support and graphical front end.  
+With PowerShell 5.x support and graphical front end.  
 
 Module version.
 
@@ -16,9 +16,9 @@ You find the script based version here: [PS2EXE-GUI: "Convert" PowerShell Script
 ## Installation
 
 ``` PowerShell
-PS C:\> Install-Module ps2exe
+PS C:\> Install-Module -Name PS2EXE
 ```
-On PowerShell 4.0 you may have to install PowershellGet or download from here: https://www.powershellgallery.com/packages/ps2exe.
+On PowerShell 4.0 you may have to install PowerShellGet or download from here: https://www.powershellgallery.com/packages/ps2exe.
 
 
 ## Usage
@@ -59,7 +59,7 @@ ps2exe.ps1 [-InputFile] "<FileName>" [[-OutputFile] "<FileName>"] [[-IconFile] "
 ```
 
 ```
-    InputFile = Powershell script that you want to convert to executable
+    InputFile = PowerShell script that you want to convert to executable
    OutputFile = destination executable file name, defaults to inputFile with extension '.exe'
      IconFile = icon file name for the compiled executable
 
@@ -109,7 +109,7 @@ A generated executables has the following reserved parameters:
 
 ### GUI mode output formatting:
 
-Per default in powershell outputs of commandlets are formatted line per line (as an array of strings). When your command generates 10 lines of output and you use GUI output, 10 message boxes will appear each awaiting for an OK. To prevent this pipe your commandto the comandlet Out-String. This will convert the output to one string array with 10 lines, all output will be shown in one message box (for example: dir C:\ | Out-String).
+Per default in powerShell outputs of commandlets are formatted line per line (as an array of strings). When your command generates 10 lines of output and you use GUI output, 10 message boxes will appear each awaiting for an OK. To prevent this pipe your commandto the comandlet Out-String. This will convert the output to one string array with 10 lines, all output will be shown in one message box (for example: dir C:\ | Out-String).
 
 ### Config files:
 
@@ -146,7 +146,7 @@ else {
 
 When an external window is opened in a script with -noConsole mode (i.e. for Get-Credential or for a command that needs a cmd.exe shell) the next window is opened in the background.
 
-The reason for this is that on closing the external window windows tries to activate the parent window. Since the compiled script has no window, the parent window of the compiled script is activated instead, normally the window of Explorer or Powershell.
+The reason for this is that on closing the external window windows tries to activate the parent window. Since the compiled script has no window, the parent window of the compiled script is activated instead, normally the window of Explorer or PowerShell.
 
 To work around this, $Host.UI.RawUI.FlushInputBuffer() opens an invisible window that can be activated. The following call of $Host.UI.RawUI.FlushInputBuffer() closes this window (and so on).
 

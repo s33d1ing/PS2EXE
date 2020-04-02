@@ -31,8 +31,8 @@ Copyright = '(c) Markus Scholtes 2020'
 
 # Description of the functionality provided by this module
 Description = @'
-Compiles Powershell scripts to executables. Overworking of the great script of Ingo Karstein with GUI support.
-'Invoke-ps2exe script.ps1' (or 'ps2exe script.ps1') compiles to script.exe. Several control parameters available.
+Compiles PowerShell scripts to executables. Overworking of the great script of Ingo Karstein with GUI support.
+Invoke-PS2EXE script.ps1 (or 'ps2exe script.ps1') compiles to script.exe. Several control parameters available.
 Or use Win-PS2EXE as a graphical front end to the compiler.
 '@
 
@@ -98,7 +98,7 @@ PrivateData = @{
 
 	PSData = @{
 		# Tags applied to this module. These help with module discovery in online galleries.
-		Tags = @('Compiler', 'ps2exe', 'Executable', 'Win-PS2EXE')
+		Tags = @('Compiler', 'PS2EXE', 'Executable', 'Win-PS2EXE')
 
 		# A URL to the license for this module.
 		LicenseUri = 'https://github.com/MScholtes/PS2EXE/blob/master/LICENSE'
