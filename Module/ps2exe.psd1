@@ -12,7 +12,7 @@
 RootModule = 'ps2exe.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.3'
+ModuleVersion = '1.1.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -111,6 +111,11 @@ PrivateData = @{
 
 		# ReleaseNotes of this module
 		ReleaseNotes = @'
+# 1.1.0 / 2020-04-02
+- G. Dees: Refactor of PS2EXE (still backwards compatible)
+# 1.0.3 / 2020-02-15
+- Converted files from UTF-16 to UTF-8 to allow git diff
+- Ignore control keys in secure string request in console mode
 # 1.0.2 / 2020-02-15
 - Ignore control keys in secure string request in console mode
 # 1.0.1 / 2019-12-16
