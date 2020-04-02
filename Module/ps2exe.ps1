@@ -390,16 +390,9 @@ if (($PSVersion -lt 3) -and $Runtime40) {
 }
 
 
-if ((-not $ConfigFile) -and $RequireAdmin) {
-    Write-Warning 'Forcing generation of a config file, because -RequireAdmin requires it.'
-}
-
-if ((-not $ConfigFile) -and $SupportOS) {
-    Write-Warning 'Forcing generation of a config file, because -SupportOS requires it.'
-}
-
 if ((-not $ConfigFile) -and $LongPaths) {
     Write-Warning 'Forcing generation of a config file, because -LongPaths requires it.'
+    $ConfigFile = $true
 }
 
 #endregion
@@ -573,7 +566,7 @@ $manifestParam = New-Object -TypeName System.Text.StringBuilder
 $win32manifest = New-Object -TypeName System.Text.StringBuilder
 
 if ($RequireAdmin -or $SupportOS -or $LongPaths) {
-    [void]$manifestParam.AppendFormat('"/win32manifest:{0}.win32manifest', $OutputFile)
+    [void]$manifestParam.AppendFormat('"/win32manifest:{0}.win32manifest"', $OutputFile)
 
     [void]$win32manifest.AppendLine('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
     [void]$win32manifest.AppendLine('<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">')
@@ -635,9 +628,8 @@ if ([string]::IsNullOrEmpty($content)) {
     Write-Error 'No data found. May be read error or file protected.'
 }
 
-$script = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes(
-    [System.String]::Join([System.Environment]::NewLine, $content)
-))
+$joined = [System.String]::Join([System.Environment]::NewLine, $content)
+$script = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($joined))
 
 
 $culture = New-Object -TypeName System.Text.StringBuilder
@@ -2992,7 +2984,6 @@ else {
 [void]$framework.AppendLine('                        }')
 
 [void]$framework.AppendLine()
-
 [void]$framework.AppendFormat('                        string script = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(@"{0}"));', $script).AppendLine()
 
 [void]$framework.AppendLine()
@@ -3027,18 +3018,14 @@ else {
 [void]$framework.AppendLine('                                }')
 [void]$framework.AppendLine('                                else')
 [void]$framework.AppendLine('                                    // caution: when called in powershell $true gets converted, when called in cmd.exe not')
-
 [void]$framework.AppendFormat('                                    if ((match.Groups[2].Value == "{0}") || (match.Groups[2].Value.ToUpper() == "\x24" + "TRUE"))', $true).AppendLine()
-
 [void]$framework.AppendLine('                                { // switch found')
 [void]$framework.AppendLine('                                    powershell.AddParameter(match.Groups[1].Value, true);')
 [void]$framework.AppendLine('                                    argbuffer = null;')
 [void]$framework.AppendLine('                                }')
 [void]$framework.AppendLine('                                else')
 [void]$framework.AppendLine('                                    // caution: when called in powershell $false gets converted, when called in cmd.exe not')
-
 [void]$framework.AppendFormat('                                    if ((match.Groups[2].Value == "{0}") || (match.Groups[2].Value.ToUpper() == "\x24" + "FALSE"))', $false).AppendLine()
-
 [void]$framework.AppendLine('                                { // switch found')
 [void]$framework.AppendLine('                                    powershell.AddParameter(match.Groups[1].Value, false);')
 [void]$framework.AppendLine('                                    argbuffer = null;')
@@ -3144,42 +3131,16 @@ else {
 #endregion
 
 
-$config20 = New-Object -TypeName System.Text.StringBuilder
-$config40 = New-Object -TypeName System.Text.StringBuilder
-
-[void]$config20.AppendLine('<?xml version="1.0" encoding="utf-8"?>')
-[void]$config20.AppendLine('<configuration>')
-[void]$config20.AppendLine('  <startup>')
-[void]$config20.AppendLine('    <supportedRuntime version="v2.0.50727"/>')
-[void]$config20.AppendLine('  </startup>')
-[void]$config20.AppendLine('</configuration>')
-
-
-[void]$config40.AppendLine('<?xml version="1.0" encoding="utf-8"?>')
-[void]$config40.AppendLine('<configuration>')
-[void]$config40.AppendLine('  <startup>')
-[void]$config40.AppendLine('    <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.0"/>')
-[void]$config40.AppendLine('  </startup>')
-
-if ($LongPaths) {
-    [void]$config40.AppendLine('  <runtime>')
-    [void]$config40.AppendLine('    <AppContextSwitchOverrides value="Switch.System.IO.UseLegacyPathHandling=false;Switch.System.IO.BlockLongPaths=false"/>')
-    [void]$config40.AppendLine('  </runtime>')
-}
-
-[void]$config40.AppendLine('</configuration>')
-
-
 Write-Output 'Compiling file...'
-
 $compilerResults = $codeProvider.CompileAssemblyFromSource($compilerParameters, $framework.ToString())
+
 
 if ($compilerResults.Errors.Count -gt 0) {
     if (Test-Path -Path $OutputFile) {
         Remove-Item $OutputFile -Verbose:$false
     }
 
-    Write-Error 'Could not create the PowerShell executable because of compilation errors. Use -Verbose parameter to see details.' -ErrorAction Continue
+    Write-Error 'Could not create the PowerShell executable because of compilation errors. Use -Verbose parameter to see details.' # -ErrorAction Continue
     $compilerResults.Errors | ForEach-Object { Write-Verbose $_ -Verbose:$PSBoundParameters.ContainsKey('Verbose') }
 }
 else {
@@ -3187,7 +3148,7 @@ else {
         Write-Output ('Output file {0} written' -f $OutputFile)
 
         if ($PSBoundParameters.ContainsKey('Debug')) {
-            $compilerResults.TempFiles | Where-Object { $_ -like "*.cs" } | Select-Object -First 1 | ForEach-Object {
+            $compilerResults.TempFiles | Where-Object { $_ -like '*.cs' } | Select-Object -First 1 | ForEach-Object {
                 $source = (
                     [System.IO.Path]::Combine(
                         [System.IO.Path]::GetDirectoryName($OutputFile),
@@ -3202,11 +3163,29 @@ else {
             $compilerResults.TempFiles | Remove-Item -Verbose:$false -Force -ErrorAction SilentlyContinue
         }
 
-        if ($ConfigFile) {
-            if ($Runtime20) { $config20 | Set-Content ($OutputFile + '.config') -Encoding UTF8 }
-            if ($Runtime40) { $config40 | Set-Content ($OutputFile + '.config') -Encoding UTF8 }
+        if ($ConfigFile -or $LongPaths) {
+            Write-Output 'Creating config file for executable.'
 
-            Write-Output 'Config file for executable created'
+            $config = New-Object -TypeName System.Text.StringBuilder
+
+            [void]$config.AppendLine('<?xml version="1.0" encoding="utf-8"?>')
+            [void]$config.AppendLine('<configuration>')
+            [void]$config.AppendLine('  <startup>')
+
+            if ($Runtime20) { [void]$config.AppendLine('    <supportedRuntime version="v2.0.50727"/>') }
+            if ($Runtime40) { [void]$config.AppendLine('    <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.0"/>') }
+
+            [void]$config.AppendLine('  </startup>')
+
+            if ($Runtime40 -and $LongPaths) {
+                [void]$config.AppendLine('  <runtime>')
+                [void]$config.AppendLine('    <AppContextSwitchOverrides value="Switch.System.IO.UseLegacyPathHandling=false;Switch.System.IO.BlockLongPaths=false"/>')
+                [void]$config.AppendLine('  </runtime>')
+            }
+
+            [void]$config.AppendLine('</configuration>')
+
+            $config.ToString() | Set-Content ($OutputFile + '.config') -Encoding UTF8
         }
     }
     else {
