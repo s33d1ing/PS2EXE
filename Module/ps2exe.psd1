@@ -37,7 +37,7 @@ Or use Win-PS2EXE as a graphical front end to the compiler.
 '@
 
 # Minimum version of the Windows PowerShell engine required by this module
-PowerShellVersion = '3.0'
+PowerShellVersion = '2.0'
 
 # Name of the Windows PowerShell host required by this module
 # PowerShellHostName = ''
@@ -46,7 +46,7 @@ PowerShellVersion = '3.0'
 # PowerShellHostVersion = ''
 
 # Minimum version of Microsoft .NET Framework required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
-DotNetFrameworkVersion = '4.0'
+DotNetFrameworkVersion = '2.0'
 
 # Minimum version of the common language runtime (CLR) required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
 # CLRVersion = ''
