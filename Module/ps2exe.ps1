@@ -131,6 +131,21 @@
 #>
 
 
+$ErrorActionPreference = 'Stop'
+
+if ($PSBoundParameters.ContainsKey('Debug')) { $DebugPreference = 'Continue' }
+if ($PSBoundParameters.ContainsKey('Verbose')) { $VerbosePreference = 'Continue' }
+
+# Populate automatic variables that are not available in PowerShell 2.0
+if ($null -eq $PSCommandPath) { $PSCommandPath = $MyInvocation.MyCommand.Definition }
+if ($null -eq $PSScriptRoot) { $PSScriptRoot = Split-Path -Path $MyInvocation.MyCommand.Definition }
+
+
+function Get-FullName ([string]$Path) {
+    $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)
+}
+
+
 function Invoke-PS2EXE {
 
 [CmdletBinding()]
@@ -170,21 +185,6 @@ param (
 
     [switch]$Nested
 )
-
-
-$ErrorActionPreference = 'Stop'
-
-if ($PSBoundParameters.ContainsKey('Debug')) { $DebugPreference = 'Continue' }
-if ($PSBoundParameters.ContainsKey('Verbose')) { $VerbosePreference = 'Continue' }
-
-# Populate automatic variables that are not available in PowerShell 2.0
-if ($null -eq $PSCommandPath) { $PSCommandPath = $MyInvocation.MyCommand.Definition }
-if ($null -eq $PSScriptRoot) { $PSScriptRoot = Split-Path -Path $MyInvocation.MyCommand.Definition }
-
-
-function Get-FullName ([string]$Path) {
-    $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)
-}
 
 
 <################################################################################>
