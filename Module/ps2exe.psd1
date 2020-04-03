@@ -12,7 +12,7 @@
 RootModule = 'ps2exe.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.1.0'
+ModuleVersion = '1.1.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -111,6 +111,8 @@ PrivateData = @{
 
 		# ReleaseNotes of this module
 		ReleaseNotes = @'
+# 1.1.1 / 2020-04-03
+- G. Dees: Moved populating PSScriptRoot and PSCommandPath out of Invoke-PS2EXE
 # 1.1.0 / 2020-04-02
 - G. Dees: Refactor of PS2EXE (still backwards compatible)
 # 1.0.3 / 2020-02-15
