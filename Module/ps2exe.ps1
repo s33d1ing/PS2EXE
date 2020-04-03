@@ -115,8 +115,8 @@
         Compiles "C:\Data\MyScript.ps1" to "C:\Data\MyScriptGUI.exe" as a graphical executable, with icon and version metadata
 
     .NOTES
-        Version: 0.5.1.0
-        Date: 2020-04-02
+        Version: 0.5.1.1
+        Date: 2020-04-03
         Author: Ingo Karstein, Markus Scholtes, Garrett Dees
 
         PowerShell 2.0 incompatibilities:
@@ -129,6 +129,21 @@
     .LINK
         https://gallery.technet.microsoft.com/PS2EXE-GUI-Convert-e7cb69d5
 #>
+
+
+$ErrorActionPreference = 'Stop'
+
+if ($PSBoundParameters.ContainsKey('Debug')) { $DebugPreference = 'Continue' }
+if ($PSBoundParameters.ContainsKey('Verbose')) { $VerbosePreference = 'Continue' }
+
+# Populate automatic variables that are not available in PowerShell 2.0
+if ($null -eq $PSCommandPath) { $PSCommandPath = $MyInvocation.MyCommand.Definition }
+if ($null -eq $PSScriptRoot) { $PSScriptRoot = Split-Path -Path $MyInvocation.MyCommand.Definition }
+
+
+function Get-FullName ([string]$Path) {
+    $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)
+}
 
 
 function Invoke-PS2EXE {
@@ -172,24 +187,9 @@ param (
 )
 
 
-$ErrorActionPreference = 'Stop'
-
-if ($PSBoundParameters.ContainsKey('Debug')) { $DebugPreference = 'Continue' }
-if ($PSBoundParameters.ContainsKey('Verbose')) { $VerbosePreference = 'Continue' }
-
-# Populate automatic variables that are not available in PowerShell 2.0
-if ($null -eq $PSCommandPath) { $PSCommandPath = $MyInvocation.MyCommand.Definition }
-if ($null -eq $PSScriptRoot) { $PSScriptRoot = Split-Path -Path $MyInvocation.MyCommand.Definition }
-
-
-function Get-FullName ([string]$Path) {
-    $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)
-}
-
-
 <################################################################################>
 <##                                                                            ##>
-<##      PS2EXE-GUI v0.5.1.0                                                   ##>
+<##      PS2EXE-GUI v0.5.1.1                                                   ##>
 <##      Written by: Ingo Karstein (http://blog.karstein-consulting.com)       ##>
 <##      Reworked and GUI support by Markus Scholtes                           ##>
 <##      Refactor by Garrett Dees                                              ##>
@@ -202,7 +202,7 @@ function Get-FullName ([string]$Path) {
 
 
 if (-not $Nested) {
-    Write-Output 'PS2EXE-GUI v0.5.1.0 by Ingo Karstein'
+    Write-Output 'PS2EXE-GUI v0.5.1.1 by Ingo Karstein'
     Write-Output 'Reworked and GUI support by Markus Scholtes'
     Write-Output 'Refactor by Garrett Dees'
 }
@@ -2793,7 +2793,7 @@ if (-not $NoError) {
 [void]$framework.AppendLine()
 [void]$framework.AppendLine('        public override Version Version')
 [void]$framework.AppendLine('        {')
-[void]$framework.AppendLine('            get { return new Version(0, 5, 1, 0); }')
+[void]$framework.AppendLine('            get { return new Version(0, 5, 1, 1); }')
 [void]$framework.AppendLine('        }')
 
 [void]$framework.AppendLine()
