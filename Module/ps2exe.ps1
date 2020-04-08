@@ -2109,7 +2109,17 @@ else {
 [void]$framework.AppendLine('                                {')
 [void]$framework.AppendLine('                                    l = ReadLine();')
 [void]$framework.AppendLine('                                    if (l == "!?")')
+[void]$framework.AppendLine('                                    {')
 [void]$framework.AppendLine('                                        WriteLine(cd.HelpMessage);')
+
+if (-not $NoConsole) {
+    [void]$framework.AppendLine('                                        if (!string.IsNullOrEmpty(cd.Name)) Write(cd.Name);')
+    [void]$framework.AppendLine('                                        if (!string.IsNullOrEmpty(cd.HelpMessage)) Write(" (Type !? for help.)");')
+    [void]$framework.AppendLine('                                        if ((!string.IsNullOrEmpty(cd.Name)) || (!string.IsNullOrEmpty(cd.HelpMessage))) Write(": ");')
+}
+
+[void]$framework.AppendLine('                                        l = "!?";')
+[void]$framework.AppendLine('                                    }')
 [void]$framework.AppendLine('                                    else')
 [void]$framework.AppendLine('                                    {')
 [void]$framework.AppendLine('                                        if (string.IsNullOrEmpty(l)) o = cd.DefaultValue;')
