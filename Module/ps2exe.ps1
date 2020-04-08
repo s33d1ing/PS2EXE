@@ -122,7 +122,7 @@
         PowerShell 2.0 incompatibilities:
             -in and -notin operators
             DontShow parameter attribute
-            .Net type's new() method
+            NET class new() method
             $PSItem pipeline variable
             -ErrorAction Ignore
 
