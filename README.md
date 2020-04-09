@@ -7,8 +7,8 @@ With PowerShell 5.x support and graphical front end.
 Module version.
 
 Author: Markus Scholtes, Garrett Dees  
-Version: 1.1.1  
-Date: 2020-04-03  
+Version: 2.0.0  
+Date: 2020-04-09  
 
 You find the script based version here: [PS2EXE-GUI: "Convert" PowerShell Scripts to EXE Files with GUI](https://gallery.technet.microsoft.com/PS2EXE-GUI-Convert-e7cb69d5).
 
@@ -159,6 +159,11 @@ $Host.UI.RawUI.FlushInputBuffer()
 
 
 ## Changes:
+### 2.0.0 / 2020-04-09
+  - **G. Dees:** Write prompt to console after viewing help message
+  - **G. Dees:** Updated parameter names and combined several using sets
+  - **G. Dees:** Restructured module and created new Manifest and Script file
+
 ### 1.1.1 / 2020-04-03
 - **G. Dees:** Moved populating PSScriptRoot and PSCommandPath out of Invoke-PS2EXE
 
