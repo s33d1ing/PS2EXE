@@ -2,26 +2,26 @@
 
 <#
     .SYNOPSIS
-        Converts PowerShell scripts to standalone executables.
+        Converts PowerShell scripts to standalone executables
 
     .DESCRIPTION
         Converts PowerShell scripts to standalone executables. GUI output and input is activated with one switch,
-        real windows executables are generated. You may use the graphical front end Win-PS2EXE for convenience.
+        real Windows executables are generated. You may use the graphical front end "Win-PS2EXE" for convenience
 
         Please see Remarks on project page for topics "GUI mode output formatting", "Config files",
-        "Password security", "Script variables" and "Window in background in -noConsole mode".
+        "Password security", "Script variables" and "Window in background in -NoConsole mode"
 
         The generated executables has the following reserved parameters:
 
-            -Debug              Forces the executable to be debugged by calling "System.Diagnostics.Debugger.Break()".
+            -Debug              Forces the executable to be debugged by calling "System.Diagnostics.Debugger.Break()"
 
-            -Extract:<Path>     Extracts the PowerShell script inside the executable and saves it as the specified Path.
+            -Extract:<Path>     Extracts the PowerShell script inside the executable and saves it as the specified Path
                                 The script will not be executed.
 
-            -Wait               Pauses at the end of the script execution and waits for a key to be pressed.
+            -Wait               Pauses at the end of the script execution and waits for a key to be pressed
 
-            -End                All following options will be passed to the script inside the executable.
-                                All preceding options are used by the executable itself.
+            -End                All following options will be passed to the script inside the executable
+                                All preceding options are used by the executable itself
 
     .PARAMETER InputFile
         PowerShell script that you want to convert to executable
@@ -32,39 +32,58 @@
     .PARAMETER IconFile
         Icon file name for the compiled executable
 
-    .PARAMETER Title
-        Title information (displayed in details tab of Windows Explorer's properties dialog)
+    .PARAMETER FileDescription
+        Alias: AssemblyTitle
 
-    .PARAMETER Description
-        Description information (not displayed, but embedded in executable)
+        Displayed as File Description in details tab of File Explorer's properties dialog
 
-    .PARAMETER Company
-        Company information (not displayed, but embedded in executable)
+    .PARAMETER FileVersion
+        Alias: AssemblyFileVersion
 
-    .PARAMETER Product
-        Product information (displayed in details tab of Windows Explorer's properties dialog)
+        Displayed as File Version in details tab of File Explorer's properties dialog
 
-    .PARAMETER Copyright
-        Copyright information (displayed in details tab of Windows Explorer's properties dialog)
+    .PARAMETER ProductName
+        Alias: AssemblyProduct
 
-    .PARAMETER Trademark
-        Trademark information (displayed in details tab of Windows Explorer's properties dialog)
+        Displayed as Product Name in details tab of File Explorer's properties dialog
 
-    .PARAMETER Version
-        Version information (displayed in details tab of Windows Explorer's properties dialog)
+    .PARAMETER ProductVersion
+        Alias: AssemblyInformationalVersion
+
+        Displayed as Product Version in details tab of File Explorer's properties dialog
+
+    .PARAMETER LegalCopyright
+        Alias: AssemblyCopyright
+
+        Displayed as Copyright in details tab of File Explorer's properties dialog
+
+    .PARAMETER LegalTrademark
+        Alias: AssemblyTrademark
+
+        Displayed as Legal Trademark in details tab of File Explorer's properties dialog
+
+    .PARAMETER CompanyName
+        Alias: AssemblyCompany
+
+        Not displayed in File Explorer, but embedded in executable
+
+    .PARAMETER Comments
+        Alias: AssemblyDescription
+
+        Not displayed in File Explorer, but embedded in executable
 
     .PARAMETER Runtime
         Choose between generating a config file that contains the "support .NET Framework versions" settings
-        for .NET Framework 2.0/3.x for PowerShell 2.0 or for .NET Framework 4.x for PowerShell 3.0 or higher.
+        for .NET Framework 2.0/3.x for PowerShell 2.0 or for .NET Framework 4.x for PowerShell 3.0 or higher
 
     .PARAMETER Platform
-        Choose between compiling for AnyCPU, or 32-bit or 64-bit runtime only.
+        Choose between compiling for AnyCPU, or 32-bit or 64-bit runtime only
 
     .PARAMETER Apartment
-        Choose between a single-threaded apartment or a multithreaded apartment.
+        Choose between a single-threaded apartment or a multithreaded apartment
 
     .PARAMETER LCID
-        Location ID for the compiled executable. Current user culture if not specified.
+        Location ID for the compiled executable. Current user culture if not specified
 
     .PARAMETER NoConfigFile
         Do not write a config file (<OutputFile>.exe.config)
@@ -87,7 +106,7 @@
     .PARAMETER RequireAdmin
         If UAC is enabled, compiled executable will run only in elevated context (UAC dialog appears if required)
 
-    .PARAMETER SupportOS
+    .PARAMETER SupportedOS
         Use functions of newest Windows versions (execute [System.Environment]::OSVersion to see the difference)
 
     .PARAMETER Virtualize
@@ -98,11 +117,19 @@
 
     .EXAMPLE
         ps2exe.ps1 C:\Data\MyScript.ps1
+
         Compiles "C:\Data\MyScript.ps1" to "C:\Data\MyScript.exe" as a console executable
 
     .EXAMPLE
         ps2exe.ps1 -InputFile C:\Data\MyScript.ps1 -OutputFile C:\Data\MyScriptGUI.exe -IconFile C:\Data\Icon.ico -NoConsole -Title "MyScript" -Version 0.1.0
+
         Compiles "C:\Data\MyScript.ps1" to "C:\Data\MyScriptGUI.exe" as a graphical executable, with icon and version metadata
+
+    .INPUTS
+        A PowerShell script (.ps1)
+
+    .OUTPUTS
+        An executable file (.exe or .com)
 
     .NOTES
         Version: 0.5.1.1
@@ -124,19 +151,29 @@
 [CmdletBinding()]
 param (
     [Parameter(Position = 0)]
-    [string]$InputFile = [string]::Empty,
+    [string]$InputFile,
     [Parameter(Position = 1)]
-    [string]$OutputFile = [string]::Empty,
+    [string]$OutputFile,
     [Parameter(Position = 2)]
-    [string]$IconFile = [string]::Empty,
+    [string]$IconFile,
 
-    [string]$Title,         # File Description
-    [string]$Description,   # Comments (Not shown in details)
-    [string]$Company,       # Company (Not shown in details)
-    [string]$Product,       # Product Name
-    [string]$Copyright,     # Copyright
-    [string]$Trademark,     # Legal Trademarks
-    [string]$Version,       # File & Product Version(s)
+    [Alias('AssemblyTitle')]
+    [string]$FileDescription,
+    [Alias('AssemblyFileVersion')]
+    [string]$FileVersion,
+    [Alias('AssemblyProduct')]
+    [string]$ProductName,
+    [Alias('AssemblyInformationalVersion')]
+    [string]$ProductVersion,
+    [Alias('AssemblyCopyright')]
+    [string]$LegalCopyright,
+    [Alias('AssemblyTrademark')]
+    [string]$LegalTrademark,
+
+    [Alias('AssemblyCompany')]
+    [string]$CompanyName,
+    [Alias('AssemblyDescription')]
+    [string]$Comments,
 
     [ValidateSet('2.0', '4.0')]
     [string]$Runtime,
@@ -145,7 +182,7 @@ param (
     [ValidateSet('STA', 'MTA')]
     [string]$Apartment,
 
-    [nullable[int]]$LCID,
+    [System.Nullable[int]]$LCID,
 
     [bool]$NoConfigFile = $true,
 
@@ -155,7 +192,7 @@ param (
 
     [switch]$CredentialGui,
     [switch]$RequireAdmin,
-    [switch]$SupportOS,
+    [switch]$SupportedOS,
     [switch]$Virtualize,
     [switch]$LongPaths,
 
@@ -205,44 +242,45 @@ if ([string]::IsNullOrEmpty($InputFile)) {
     [void]$help.AppendLine()
     [void]$help.AppendLine('Usage:')
     [void]$help.AppendLine()
-    [void]$help.AppendLine('ps2exe.ps1 [-InputFile] "<FileName>" [[-OutputFile] "<FileName>"] [[-IconFile] "<FileName>"]')
+    [void]$help.AppendLine('ps2exe.ps1 [-InputFile] <string> [[-OutputFile] <string>] [[-IconFile] <string>]')
     [void]$help.AppendLine()
-    [void]$help.AppendLine('    [-Title "<Title>"] [-Description "<Description>"] [-Company "<Company>"] [-Product "<Product>"]')
-    [void]$help.AppendLine('    [-Copyright "<Copyright>"] [-Trademark "<Trademark>"] [-Version "<Version>"]')
+    [void]$help.AppendLine('    [-FileDescription <string>] [-FileVersion <version>] [-ProductName <string>] [-ProductVersion <Version>]')
+    [void]$help.AppendLine('    [-LegalCopyright <string>] [-LegalTrademark <string>] [-CompanyName <string>] [-Comments <string>]')
     [void]$help.AppendLine()
     [void]$help.AppendLine('    [-Runtime <2.0|4.0>] [-Platform <AnyCPU|x86|x64>] [-Apartment <STA|MTA>] [-LCID <ID>]')
     [void]$help.AppendLine()
-    [void]$help.AppendLine('    [-NoConfigFile] [-NoConsole] [-NoOutput] [-NoError] ')
+    [void]$help.AppendLine('    [-NoConfigFile:<bool>] [-NoConsole] [-NoOutput] [-NoError] ')
     [void]$help.AppendLine('    [-CredentialGui] [-RequireAdmin] [-SupportOS] [-Virtualize] [-LongPaths]')
     [void]$help.AppendLine()
     [void]$help.AppendLine()
-    [void]$help.AppendLine('    InputFile = PowerShell script that you want to convert to executable')
-    [void]$help.AppendLine('   OutputFile = Destination executable file name, defaults to InputFile with extension ".exe"')
-    [void]$help.AppendLine('     IconFile = Icon file name for the compiled executable')
+    [void]$help.AppendLine('       InputFile = PowerShell script that you want to convert to executable')
+    [void]$help.AppendLine('      OutputFile = Destination executable file name, defaults to InputFile with extension ".exe"')
+    [void]$help.AppendLine('        IconFile = Icon file name for the compiled executable')
     [void]$help.AppendLine()
-    [void]$help.AppendLine('        Title = Title information (displayed in details tab of Windows Explorer''s properties dialog)')
-    [void]$help.AppendLine('  Description = Description information (not displayed, but embedded in executable)')
-    [void]$help.AppendLine('      Company = Company information (not displayed, but embedded in executable)')
-    [void]$help.AppendLine('      Product = Product information (displayed in details tab of Windows Explorer''s properties dialog)')
-    [void]$help.AppendLine('    Copyright = Copyright information (displayed in details tab of Windows Explorer''s properties dialog)')
-    [void]$help.AppendLine('    Trademark = Trademark information (displayed in details tab of Windows Explorer''s properties dialog)')
-    [void]$help.AppendLine('      Version = Version information (displayed in details tab of Windows Explorer''s properties dialog)')
+    [void]$help.AppendLine(' FileDescription = AssemblyTitle (File Description in details tab of File Explorer''s properties dialog)')
+    [void]$help.AppendLine('     FileVersion = AssemblyFileVersion (File Version in details tab of File Explorer''s properties dialog)')
+    [void]$help.AppendLine('     ProductName = AssemblyProduct (Product Name in details tab of File Explorer''s properties dialog)')
+    [void]$help.AppendLine('  ProductVersion = AssemblyInformationalVersion (Product Version in details tab of File Explorer''s properties dialog)')
+    [void]$help.AppendLine('  LegalCopyright = AssemblyCopyright (Copyright in details tab of File Explorer''s properties dialog)')
+    [void]$help.AppendLine('  LegalTrademark = AssemblyTrademark (Legal Trademark in details tab of File Explorer''s properties dialog)')
+    [void]$help.AppendLine('     CompanyName = AssemblyCompany (Not displayed in File Explorer, but embedded in executable)')
+    [void]$help.AppendLine('        Comments = AssemblyDescription (Not displayed in File Explorer, but embedded in executable)')
     [void]$help.AppendLine()
-    [void]$help.AppendLine('      Runtime = Choose between generating a config file that contains the "support .NET Framework versions" settings')
-    [void]$help.AppendLine('                for .NET Framework 2.0/3.x for PowerShell 2.0 or for .NET Framework 4.x for PowerShell 3.0 or higher')
-    [void]$help.AppendLine('     Platform = Choose between compiling for AnyCPU, or 32-bit or 64-bit runtime only')
-    [void]$help.AppendLine('    Apartment = Choose between a single-threaded apartment or a multithreaded apartment')
-    [void]$help.AppendLine('         LCID = Location ID for the compiled executable. Current user culture if not specified')
+    [void]$help.AppendLine('         Runtime = Choose between generating a config file that contains the "support .NET Framework versions" settings')
+    [void]$help.AppendLine('                   for .NET Framework 2.0/3.x for PowerShell 2.0 or for .NET Framework 4.x for PowerShell 3.0 or higher')
+    [void]$help.AppendLine('        Platform = Choose between compiling for AnyCPU, or 32-bit or 64-bit runtime only')
+    [void]$help.AppendLine('       Apartment = Choose between a single-threaded apartment or a multithreaded apartment')
+    [void]$help.AppendLine('            LCID = Location ID for the compiled executable. Current user culture if not specified')
     [void]$help.AppendLine()
-    [void]$help.AppendLine(' NoConfigFile = Do not write a config file (<OutputFile>.exe.config)')
-    [void]$help.AppendLine('    NoConsole = The resulting executable will be a Windows Forms app without a console window')
-    [void]$help.AppendLine('     NoOutput = The resulting executable will generate no standard output (includes verbose and information channel)')
-    [void]$help.AppendLine('      NoError = The resulting executable will generate no error output (includes warning and debug channel)')
-    [void]$help.AppendLine('CredentialGui = Use GUI for prompting credentials in console mode instead of console input')
-    [void]$help.AppendLine(' RequireAdmin = If UAC is enabled, compiled executable run only in elevated context (UAC dialog appears if required)')
-    [void]$help.AppendLine('    SupportOS = Use functions of newest Windows versions (execute [System.Environment]::OSVersion to see the difference)')
-    [void]$help.AppendLine('   Virtualize = Application virtualization is activated (forcing x86 runtime)')
-    [void]$help.AppendLine('    LongPaths = Enable long paths (>260 characters) if enabled on OS (works only with Windows 10)')
+    [void]$help.AppendLine('    NoConfigFile = Do not write a config file (<OutputFile>.exe.config)')
+    [void]$help.AppendLine('       NoConsole = The resulting executable will be a Windows Forms application without a console window')
+    [void]$help.AppendLine('        NoOutput = The resulting executable will generate no standard output (includes verbose and information streams)')
+    [void]$help.AppendLine('         NoError = The resulting executable will generate no error output (includes warning and debug streams)')
+    [void]$help.AppendLine('   CredentialGui = Use GUI for prompting credentials in console mode instead of console input')
+    [void]$help.AppendLine('    RequireAdmin = If UAC is enabled, compiled executable run only in elevated context (UAC dialog appears if required)')
+    [void]$help.AppendLine('     SupportedOS = Use functions of newest Windows versions (run [System.Environment]::OSVersion to see version)')
+    [void]$help.AppendLine('      Virtualize = Application virtualization is activated (forcing x86 runtime)')
+    [void]$help.AppendLine('       LongPaths = Enable long paths (>260 characters) if enabled on OS (only works with Windows 10)')
     [void]$help.AppendLine()
     [void]$help.AppendLine()
     [void]$help.AppendLine('Input file not specified!')
@@ -314,18 +352,19 @@ if (-not [string]::IsNullOrEmpty($IconFile)) {
 }
 
 
-# Escape escape sequences in version info
-$Title = $Title -replace '\\', '\\'
-$Product = $Product -replace '\\', '\\'
-$Copyright = $Copyright -replace '\\', '\\'
-$Trademark = $Trademark -replace '\\', '\\'
-$Description = $Description -replace '\\', '\\'
-$Company = $Company -replace '\\', '\\'
+if (-not [string]::IsNullOrEmpty($FileVersion)) {
+    if ($FileVersion -notmatch '^(0|[1-9]\d*)\.(0|[1-9]\d*)(?:\.(0|[1-9]\d*))?(?:\.(0|[1-9]\d*))?$') {
+        Write-Error 'File Version number must follow the Assembly Versioning specification!'
+    }
+}
 
-# Check for correct version number information
-if (-not [string]::IsNullOrEmpty($Version)) {
-    if ($Version -notmatch '^(0|[1-9]\d*)(?:\.(0|[1-9]\d*))?(?:\.(0|[1-9]\d*))?(?:\.(0|[1-9]\d*))?$') {
-        Write-Error 'Version number must be in the form of "n", "n.n", "n.n.n", or "n.n.n.n"!'
+if (-not [string]::IsNullOrEmpty($ProductVersion)) {
+    if ($ProductVersion -notmatch (
+        '^(0|[1-9]\d*)(?:\.(0|[1-9]\d*))?(?:\.(0|[1-9]\d*))?' + `
+        '(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?' + `
+        '(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'
+    )) {
+        Write-Error 'Product Version number must follow the Semantic Versioning specification!'
     }
 }
 
@@ -347,7 +386,7 @@ if ($RequireAdmin -and $Virtualize) {
     Write-Error '-RequireAdmin and -Virtualize cannot be combined!'
 }
 
-if ($SupportOS -and $Virtualize) {
+if ($SupportedOS -and $Virtualize) {
     Write-Error '-SupportOS and -Virtualize cannot be combined!'
 }
 
@@ -393,13 +432,15 @@ if (($PSVersion -ge 3) -and ($Runtime -eq '2.0')) {
     [void]$arguments.AppendFormat('-InputFile "{0}" -OutputFile "{1}"', $InputFile, $OutputFile)
 
     if (-not [string]::IsNullOrEmpty($IconFile)) { [void]$arguments.AppendFormat(' -IconFile "{0}"', $IconFile) }
-    if (-not [string]::IsNullOrEmpty($Title)) { [void]$arguments.AppendFormat(' -Title "{0}"', $Title) }
-    if (-not [string]::IsNullOrEmpty($Description)) { [void]$arguments.AppendFormat(' -Description "{0}"', $Description) }
-    if (-not [string]::IsNullOrEmpty($Company)) { [void]$arguments.AppendFormat(' -Company "{0}"', $Company) }
-    if (-not [string]::IsNullOrEmpty($Product)) { [void]$arguments.AppendFormat(' -Product "{0}"', $Product) }
-    if (-not [string]::IsNullOrEmpty($Copyright)) { [void]$arguments.AppendFormat(' -Copyright "{0}"', $Copyright) }
-    if (-not [string]::IsNullOrEmpty($Trademark)) { [void]$arguments.AppendFormat(' -Trademark "{0}"', $Trademark) }
-    if (-not [string]::IsNullOrEmpty($Version)) { [void]$arguments.AppendFormat(' -Version "{0}"', $Version) }
+
+    if (-not [string]::IsNullOrEmpty($FileDescription)) { [void]$arguments.AppendFormat(' -FileDescription "{0}"', $FileDescription) }
+    if (-not [string]::IsNullOrEmpty($FileVersion)) { [void]$arguments.AppendFormat(' -FileVersion "{0}"', $FileVersion) }
+    if (-not [string]::IsNullOrEmpty($ProductName)) { [void]$arguments.AppendFormat(' -ProductName "{0}"', $ProductName) }
+    if (-not [string]::IsNullOrEmpty($ProductVersion)) { [void]$arguments.AppendFormat(' -ProductVersion "{0}"', $ProductVersion) }
+    if (-not [string]::IsNullOrEmpty($LegalCopyright)) { [void]$arguments.AppendFormat(' -LegalCopyright "{0}"', $LegalCopyright) }
+    if (-not [string]::IsNullOrEmpty($LegalTrademark)) { [void]$arguments.AppendFormat(' -LegalTrademark "{0}"', $LegalTrademark) }
+    if (-not [string]::IsNullOrEmpty($CompanyName)) { [void]$arguments.AppendFormat(' -CompanyName "{0}"', $CompanyName) }
+    if (-not [string]::IsNullOrEmpty($Comments)) { [void]$arguments.AppendFormat(' -Comments "{0}"', $Comments) }
 
     # Only add the following three arguments if they were provided by the user and not auto populated
     if ($PSBoundParameters.ContainsKey($Runtime)) { [void]$arguments.AppendFormat(' -Runtime "{0}"', $Runtime) }
@@ -416,8 +457,9 @@ if (($PSVersion -ge 3) -and ($Runtime -eq '2.0')) {
 
     if ($CredentialGui.IsPresent) { [void]$arguments.Append(' -CredentialGui') }
     if ($RequireAdmin.IsPresent) { [void]$arguments.Append(' -RequireAdmin') }
+    if ($SupportedOS.IsPresent) { [void]$arguments.Append(' -SupportedOS') }
     if ($Virtualize.IsPresent) { [void]$arguments.Append(' -Virtualize') }
-    if ($SupportOS.IsPresent) { [void]$arguments.Append(' -SupportOS') }
+    if ($LongPaths.IsPresent) { [void]$arguments.Append(' -LongPaths') }
 
     if (-not $Nested.IsPresent) { [void]$arguments.Append(' -Nested') }
 
@@ -425,10 +467,10 @@ if (($PSVersion -ge 3) -and ($Runtime -eq '2.0')) {
     if ($PSBoundParameters.ContainsKey('Verbose')) { [void]$arguments.Append(' -Verbose') }
 
 
-    $command = '. "{0}\powershell.exe" -Version 2.0 -Command ''& "{1}" {2}''' -f $PSHOME, $PSCommandPath, $arguments.ToString()
+    $command = '. PowerShell.exe -Version 2.0 -Command ''& "{0}" {1}''' -f $PSCommandPath, $arguments.ToString()
 
     Write-Debug ('Invoking: {0}' -f $command)
-    Invoke-Expression -Command $command
+    Invoke-Expression -Command $command.Replace('"', '\"')
 
     # exit
     return
@@ -531,7 +573,7 @@ if (-not ([string]::IsNullOrEmpty($IconFile))) {
     $win32icon = '"/win32icon:{0}"' -f $IconFile
 }
 
-if ($RequireAdmin -or $SupportOS -or $LongPaths) {
+if ($RequireAdmin -or $SupportedOS -or $LongPaths) {
     $win32manifest = '"/win32manifest:{0}.win32manifest"' -f $OutputFile
 
     $manifest = New-Object -TypeName System.Text.StringBuilder
@@ -557,14 +599,14 @@ if ($RequireAdmin -or $SupportOS -or $LongPaths) {
         [void]$manifest.AppendLine('  </trustInfo>')
     }
 
-    if ($SupportOS) {
+    if ($SupportedOS) {
         [void]$manifest.AppendLine('  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">')
         [void]$manifest.AppendLine('    <application>')
-        [void]$manifest.AppendLine('      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/>')
-        [void]$manifest.AppendLine('      <supportedOS Id="{1f676c76-80e1-4239-95bb-83d0f6d0da78}"/>')
-        [void]$manifest.AppendLine('      <supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}"/>')
-        [void]$manifest.AppendLine('      <supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}"/>')
-        [void]$manifest.AppendLine('      <supportedOS Id="{e2011457-1546-43c5-a5fe-008deee3d3f0}"/>')
+        [void]$manifest.AppendLine('      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/> // Windows 10')
+        [void]$manifest.AppendLine('      <supportedOS Id="{1f676c76-80e1-4239-95bb-83d0f6d0da78}"/> // Windows 8.1')
+        [void]$manifest.AppendLine('      <supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}"/> // Windows 8')
+        [void]$manifest.AppendLine('      <supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}"/> // Windows 7')
+        [void]$manifest.AppendLine('      <supportedOS Id="{e2011457-1546-43c5-a5fe-008deee3d3f0}"/> // Windows Vista')
         [void]$manifest.AppendLine('    </application>')
         [void]$manifest.AppendLine('  </compatibility>')
     }
@@ -637,19 +679,23 @@ if ($NoConsole) {
 }
 
 [void]$framework.AppendLine()
-[void]$framework.AppendFormat('[assembly: AssemblyTitle("{0}")]', $Title).AppendLine()
-[void]$framework.AppendFormat('[assembly: AssemblyProduct("{0}")]', $Product).AppendLine()
-[void]$framework.AppendFormat('[assembly: AssemblyCopyright("{0}")]', $Copyright).AppendLine()
-[void]$framework.AppendFormat('[assembly: AssemblyTrademark("{0}")]', $Trademark).AppendLine()
+[void]$framework.AppendFormat('[assembly: AssemblyTitle("{0}")]', $FileDescription.Replace('\', '\\')).AppendLine()
+[void]$framework.AppendFormat('[assembly: AssemblyDescription("{0}")]', $Comments.Replace('\', '\\')).AppendLine()
+[void]$framework.AppendFormat('[assembly: AssemblyCompany("{0}")]', $CompanyName.Replace('\', '\\')).AppendLine()
+[void]$framework.AppendFormat('[assembly: AssemblyProduct("{0}")]', $ProductName.Replace('\', '\\')).AppendLine()
+[void]$framework.AppendFormat('[assembly: AssemblyCopyright("{0}")]', $LegalCopyright.Replace('\', '\\')).AppendLine()
+[void]$framework.AppendFormat('[assembly: AssemblyTrademark("{0}")]', $LegalTrademark.Replace('\', '\\')).AppendLine()
 
-if (-not [string]::IsNullOrEmpty($Version)) {
-    [void]$framework.AppendFormat('[assembly: AssemblyVersion("{0}")]', $Version).AppendLine()
-    [void]$framework.AppendFormat('[assembly: AssemblyFileVersion("{0}")]', $Version).AppendLine()
+if (-not [string]::IsNullOrEmpty($FileVersion)) {
+    $major, $minor = $FileVersion.Split('.') | Select-Object -First 2
+
+    [void]$framework.AppendFormat('[assembly: AssemblyVersion("{0}.{1}")]', $major, $minor).AppendLine()
+    [void]$framework.AppendFormat('[assembly: AssemblyFileVersion("{0}")]', $FileVersion).AppendLine()
 }
 
-[void]$framework.AppendLine('// not displayed in details tab of properties dialog, but embedded to file')
-[void]$framework.AppendFormat('[assembly: AssemblyDescription("{0}")]', $Description).AppendLine()
-[void]$framework.AppendFormat('[assembly: AssemblyCompany("{0}")]', $Company).AppendLine()
+if (-not [string]::IsNullOrEmpty($ProductVersion)) {
+    [void]$framework.AppendFormat('[assembly: AssemblyInformationalVersion("{0}")]', $ProductVersion).AppendLine()
+}
 
 #region PowerShell Host
 
@@ -3114,7 +3160,7 @@ $compilerResults = $codeProvider.CompileAssemblyFromSource($compilerParameters, 
 
 
 if ($compilerResults.Errors.Count -gt 0) {
-    if (Test-Path -Path $OutputFile) { Remove-Item $OutputFile }
+    if (Test-Path -Path $OutputFile) { Remove-Item -Path $OutputFile -Force }
 
     Write-Error ('Could not create the PowerShell executable because of compilation errors. ' + `
         'Use -Verbose parameter to see details.') -ErrorAction Continue
@@ -3174,7 +3220,7 @@ else {
     }
 }
 
-if ($RequireAdmin -or $SupportOS -or $LongPaths) {
+if ($RequireAdmin -or $SupportedOS -or $LongPaths) {
     if (Test-Path -Path ($OutputFile + '.win32manifest')) {
         Remove-Item -Path ($OutputFile + '.win32manifest') -Force
     }
