@@ -47,61 +47,60 @@ If ".\target.exe" is omitted, output is written to ".\source.exe".
 ## Parameter
 
 ``` PowerShell
-ps2exe.ps1 [-InputFile] "<FileName>" [[-OutputFile] "<FileName>"] [[-IconFile] "<FileName>"]
+ps2exe.ps1 [-InputFile] <string> [[-OutputFile] <string>] [[-IconFile] <string>]
 
-    [-Title "<Title>"] [-Description "<Description>"] [-Company "<Company>"] [-Product "<Product>"]
-    [-Copyright "<Copyright>"] [-Trademark "<Trademark>"] [-Version "<Version>"]
+    [-FileDescription <string>] [-FileVersion <string>] [-ProductName <string>] [-ProductVersion <string>]
+    [-LegalCopyright <string>] [-LegalTrademark <string>] [-CompanyName <string>] [-Comments <string>]
 
-    [-LCID <ID>] [-Runtime20|-Runtime40] [-x86|-x64] [-STA|-MTA]
+    [-Runtime <2.0|4.0>] [-Platform <AnyCPU|x86|x64>] [-Apartment <STA|MTA>] [-LCID <ID>]
 
-    [-NoConsole] [-CredentialGUI] [-ConfigFile] [-NoOutput] [-NoError] 
-    [-RequireAdmin] [-SupportOS] [-Virtualize] [-LongPaths]
+    [-NoConfigFile:<bool>] [-NoConsole] [-NoOutput] [-NoError]
+    [-CredentialGui] [-RequireAdmin] [-SupportOS] [-Virtualize] [-LongPaths]
 ```
 
 ```
-    InputFile = PowerShell script that you want to convert to executable
-   OutputFile = destination executable file name, defaults to inputFile with extension '.exe'
-     IconFile = icon file name for the compiled executable
+      InputFile = PowerShell script that you want to convert to executable')
+      OutputFile = Destination executable file name, defaults to InputFile with extension ".exe"')
+        IconFile = Icon file name for the compiled executable')
 
-        Title = title information (displayed in details tab of Windows Explorer's properties dialog)
-  Description = description information (not displayed, but embedded in executable)
-      Company = company information (not displayed, but embedded in executable)
-      Product = product information (displayed in details tab of Windows Explorer's properties dialog)
-    Copyright = copyright information (displayed in details tab of Windows Explorer's properties dialog)
-    Trademark = trademark information (displayed in details tab of Windows Explorer's properties dialog)
-      Version = version information (displayed in details tab of Windows Explorer's properties dialog)
+FileDescription = AssemblyTitle (File Description in details tab of File Explorer''s properties dialog)
+    FileVersion = AssemblyFileVersion (File Version in details tab of File Explorer''s properties dialog)
+    ProductName = AssemblyProduct (Product Name in details tab of File Explorer''s properties dialog)
+  ProductVersion = AssemblyInformationalVersion (Product Version in details tab of File Explorer''s properties dialog)
+  LegalCopyright = AssemblyCopyright (Copyright in details tab of File Explorer''s properties dialog)
+  LegalTrademark = AssemblyTrademark (Legal Trademark in details tab of File Explorer''s properties dialog)
+    CompanyName = AssemblyCompany (Not displayed in File Explorer, but embedded in executable)
+        Comments = AssemblyDescription (Not displayed in File Explorer, but embedded in executable)
 
+        Runtime = Choose between generating a config file that contains the "support .NET Framework versions" settings
+                  for .NET Framework 2.0/3.x for PowerShell 2.0 or for .NET Framework 4.x for PowerShell 3.0 or higher
+        Platform = Choose between compiling for AnyCPU, or 32-bit or 64-bit runtime only
+      Apartment = Choose between a single-threaded apartment or a multithreaded apartment
          LCID = location ID for the compiled executable. Current user culture if not specified
-    Runtime20 = this switch forces PS2EXE to create a config file for the generated executable that contains the
-                "supported .NET Framework versions" setting for .NET Framework 2.0/3.x for PowerShell 2.0
-    Runtime40 = this switch forces PS2EXE to create a config file for the generated executable that contains the
-                "supported .NET Framework versions" setting for .NET Framework 4.x for PowerShell 3.0 or higher
-   x86 or x64 = compile for 32-bit or 64-bit runtime only
-   STA or MTA = 'Single Thread Apartment' or 'Multi Thread Apartment' mode
 
-    NoConsole = the resulting executable will be a Windows Forms app without a console window
-CredentialGUI = use GUI for prompting credentials in console mode
-   ConfigFile = write config file (<outputfile>.exe.config)
-     NoOutput = the resulting executable will generate no standard output (includes verbose and information channel)
-      NoError = the resulting executable will generate no error output (includes warning and debug channel)
+    NoConfigFile = Do not write a config file (<OutputFile>.exe.config)
+      NoConsole = The resulting executable will be a Windows Forms application without a console window
+        NoOutput = The resulting executable will generate no standard output (includes verbose and information streams)
+        NoError = The resulting executable will generate no error output (includes warning and debug streams)
+  CredentialGui = Use GUI for prompting credentials in console mode instead of console input
  RequireAdmin = if UAC is enabled, compiled executable run only in elevated context (UAC dialog appears if required)
-    SupportOS = use functions of newest Windows versions (execute [Environment]::OSVersion to see the difference)
+    SupportedOS = Use functions of newest Windows versions (run [System.Environment]::OSVersion to see version)
    Virtualize = application virtualization is activated (forcing x86 runtime)
-    LongPaths = enable long paths ( > 260 characters) if enabled on OS (works only with Windows 10)
+      LongPaths = Enable long paths (>260 characters) if enabled on OS (only works with Windows 10)
 ```
 
 A generated executables has the following reserved parameters:
 
 ```
--Debug              Forces the executable to be debugged. It calls "System.Diagnostics.Debugger.Break()".
+-Debug              Forces the executable to be debugged by calling "System.Diagnostics.Debugger.Break()"
 
--Extract:<Path>     Extracts the powerShell script inside the executable and saves it as the specified Path.
+-Extract:<Path>     Extracts the PowerShell script inside the executable and saves it as the specified Path
                     The script will not be executed.
 
--Wait               At the end of the script execution it writes "Hit any key to exit..." and waits for a key to be pressed.
+-Wait               Pauses at the end of the script execution and waits for a key to be pressed
 
--End                All following options will be passed to the script inside the executable.
-                    All preceding options are used by the executable itself and will not be passed to the script.
+-End                All following options will be passed to the script inside the executable
+                    All preceding options are used by the executable itself
 ```
 
 
