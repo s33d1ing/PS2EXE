@@ -133,7 +133,7 @@
 
     .NOTES
         Version: 0.6.0.0
-        Date: 2020-04-09
+        Date: 2020-04-10
         Author: Ingo Karstein, Markus Scholtes, Garrett Dees
 
         PowerShell 2.0 incompatibilities:
@@ -247,7 +247,7 @@ if ([string]::IsNullOrEmpty($InputFile)) {
     [void]$help.AppendLine('    [-FileDescription <string>] [-FileVersion <string>] [-ProductName <string>] [-ProductVersion <string>]')
     [void]$help.AppendLine('    [-LegalCopyright <string>] [-LegalTrademark <string>] [-CompanyName <string>] [-Comments <string>]')
     [void]$help.AppendLine()
-    [void]$help.AppendLine('    [-Runtime <2.0|4.0>] [-Platform <AnyCPU|x86|x64>] [-Apartment <STA|MTA>] [-LCID <ID>]')
+    [void]$help.AppendLine('    [-Runtime {2.0 | 4.0}] [-Platform {AnyCPU | x86 | x64}] [-Apartment {STA | MTA}] [-LCID <ID>]')
     [void]$help.AppendLine()
     [void]$help.AppendLine('    [-NoConfigFile:<bool>] [-NoConsole] [-NoOutput] [-NoError]')
     [void]$help.AppendLine('    [-CredentialGui] [-RequireAdmin] [-SupportOS] [-Virtualize] [-LongPaths]')
