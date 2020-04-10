@@ -7,18 +7,10 @@ With PowerShell 5.x support and graphical front end.
 Module version.
 
 Author: Markus Scholtes, Garrett Dees  
-Version: 1.1.1  
-Date: 2020-04-03  
+Version: 2.0.0  
+Date: 2020-04-10  
 
 You find the script based version here: [PS2EXE-GUI: "Convert" PowerShell Scripts to EXE Files with GUI](https://gallery.technet.microsoft.com/PS2EXE-GUI-Convert-e7cb69d5).
-
-
-## Installation
-
-``` PowerShell
-PS C:\> Install-Module -Name PS2EXE
-```
-On PowerShell 4.0 you may have to install PowerShellGet or download from here: https://www.powershellgallery.com/packages/ps2exe.
 
 
 ## Usage
@@ -32,61 +24,54 @@ Invoke-PS2EXE .\source.ps1 .\target.exe
 or
 
 ``` PowerShell
-ps2exe .\source.ps1 .\target.exe
+PS2EXE .\source.ps1 .\target.exe
 ```
 
 If ".\target.exe" is omitted, output is written to ".\source.exe".
 
-### Start Win-PS2EXE for a graphical front end with:
-
-``` PowerShell
-  Win-PS2EXE
-```
-
 
 ## Parameter
 
-``` PowerShell
+```
 ps2exe.ps1 [-InputFile] <string> [[-OutputFile] <string>] [[-IconFile] <string>]
 
     [-FileDescription <string>] [-FileVersion <string>] [-ProductName <string>] [-ProductVersion <string>]
     [-LegalCopyright <string>] [-LegalTrademark <string>] [-CompanyName <string>] [-Comments <string>]
 
-    [-Runtime <2.0|4.0>] [-Platform <AnyCPU|x86|x64>] [-Apartment <STA|MTA>] [-LCID <ID>]
+    [-Runtime {2.0 | 4.0}] [-Platform {AnyCPU | x86 | x64}] [-Apartment {STA | MTA}] [-LCID <ID>]
 
     [-NoConfigFile:<bool>] [-NoConsole] [-NoOutput] [-NoError]
     [-CredentialGui] [-RequireAdmin] [-SupportOS] [-Virtualize] [-LongPaths]
-```
 
-```
-      InputFile = PowerShell script that you want to convert to executable')
+
+       InputFile = PowerShell script that you want to convert to executable')
       OutputFile = Destination executable file name, defaults to InputFile with extension ".exe"')
         IconFile = Icon file name for the compiled executable')
 
-FileDescription = AssemblyTitle (File Description in details tab of File Explorer''s properties dialog)
-    FileVersion = AssemblyFileVersion (File Version in details tab of File Explorer''s properties dialog)
-    ProductName = AssemblyProduct (Product Name in details tab of File Explorer''s properties dialog)
+ FileDescription = AssemblyTitle (File Description in details tab of File Explorer''s properties dialog)
+     FileVersion = AssemblyFileVersion (File Version in details tab of File Explorer''s properties dialog)
+     ProductName = AssemblyProduct (Product Name in details tab of File Explorer''s properties dialog)
   ProductVersion = AssemblyInformationalVersion (Product Version in details tab of File Explorer''s properties dialog)
   LegalCopyright = AssemblyCopyright (Copyright in details tab of File Explorer''s properties dialog)
   LegalTrademark = AssemblyTrademark (Legal Trademark in details tab of File Explorer''s properties dialog)
-    CompanyName = AssemblyCompany (Not displayed in File Explorer, but embedded in executable)
+     CompanyName = AssemblyCompany (Not displayed in File Explorer, but embedded in executable)
         Comments = AssemblyDescription (Not displayed in File Explorer, but embedded in executable)
 
-        Runtime = Choose between generating a config file that contains the "support .NET Framework versions" settings
-                  for .NET Framework 2.0/3.x for PowerShell 2.0 or for .NET Framework 4.x for PowerShell 3.0 or higher
+         Runtime = Choose between generating a config file that contains the "support .NET Framework versions" settings
+                   for .NET Framework 2.0/3.x for PowerShell 2.0 or for .NET Framework 4.x for PowerShell 3.0 or higher
         Platform = Choose between compiling for AnyCPU, or 32-bit or 64-bit runtime only
-      Apartment = Choose between a single-threaded apartment or a multithreaded apartment
-         LCID = location ID for the compiled executable. Current user culture if not specified
+       Apartment = Choose between a single-threaded apartment or a multithreaded apartment
+            LCID = location ID for the compiled executable. Current user culture if not specified
 
     NoConfigFile = Do not write a config file (<OutputFile>.exe.config)
-      NoConsole = The resulting executable will be a Windows Forms application without a console window
+       NoConsole = The resulting executable will be a Windows Forms application without a console window
         NoOutput = The resulting executable will generate no standard output (includes verbose and information streams)
-        NoError = The resulting executable will generate no error output (includes warning and debug streams)
-  CredentialGui = Use GUI for prompting credentials in console mode instead of console input
- RequireAdmin = if UAC is enabled, compiled executable run only in elevated context (UAC dialog appears if required)
-    SupportedOS = Use functions of newest Windows versions (run [System.Environment]::OSVersion to see version)
-   Virtualize = application virtualization is activated (forcing x86 runtime)
-      LongPaths = Enable long paths (>260 characters) if enabled on OS (only works with Windows 10)
+         NoError = The resulting executable will generate no error output (includes warning and debug streams)
+   CredentialGui = Use GUI for prompting credentials in console mode instead of console input
+    RequireAdmin = if UAC is enabled, compiled executable run only in elevated context (UAC dialog appears if required)
+     SupportedOS = Use functions of newest Windows versions (run [System.Environment]::OSVersion to see version)
+      Virtualize = application virtualization is activated (forcing x86 runtime)
+       LongPaths = Enable long paths (>260 characters) if enabled on OS (only works with Windows 10)
 ```
 
 A generated executables has the following reserved parameters:
@@ -159,6 +144,11 @@ $Host.UI.RawUI.FlushInputBuffer()
 
 
 ## Changes:
+### 2.0.0 / 2020-04-10
+  - **G. Dees:** Write prompt to console after viewing help message
+  - **G. Dees:** Updated parameter names and combined several using sets
+  - **G. Dees:** Restructured module and created new Manifest and Script file
+
 ### 1.1.1 / 2020-04-03
 - **G. Dees:** Moved populating PSScriptRoot and PSCommandPath out of Invoke-PS2EXE
 
