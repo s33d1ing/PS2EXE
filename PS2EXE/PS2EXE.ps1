@@ -100,6 +100,9 @@
     .PARAMETER NoError
         The resulting executable will generate no error output (includes warning and debug channel)
 
+    .PARAMETER NoVisualStyles
+        Disables Visual Styles for a generated Windows GUI application (only applicable with parameter -NoConsole)
+
     .PARAMETER CredentialGui
         Use GUI for prompting credentials in console mode instead of console input
 
@@ -132,8 +135,8 @@
         An executable file (.exe or .com)
 
     .NOTES
-        Version: 0.6.0.0
-        Date: 2020-04-10
+        Version: 0.6.1.0
+        Date: 2020-04-23
         Author: Ingo Karstein, Markus Scholtes, Garrett Dees
 
         PowerShell 2.0 incompatibilities:
@@ -189,6 +192,7 @@ param (
     [switch]$NoConsole,
     [switch]$NoOutput,
     [switch]$NoError,
+    [switch]$NoVisualStyles,
 
     [switch]$CredentialGui,
     [switch]$RequireAdmin,
@@ -217,7 +221,7 @@ function Get-FullName ([string]$Path) {
 
 <################################################################################>
 <##                                                                            ##>
-<##      PS2EXE-GUI v0.6.0.0                                                   ##>
+<##      PS2EXE-GUI v0.6.1.0                                                   ##>
 <##      Written by: Ingo Karstein (http://blog.karstein-consulting.com)       ##>
 <##      Reworked and GUI support by Markus Scholtes                           ##>
 <##      Refactor by Garrett Dees                                              ##>
@@ -230,7 +234,7 @@ function Get-FullName ([string]$Path) {
 
 
 if (-not $Nested) {
-    Write-Host 'PS2EXE-GUI v0.6.0.0 by Ingo Karstein'
+    Write-Host 'PS2EXE-GUI v0.6.1.0 by Ingo Karstein'
     Write-Host 'Reworked and GUI support by Markus Scholtes'
     Write-Host 'Refactor by Garrett Dees'
 }
@@ -249,7 +253,7 @@ if ([string]::IsNullOrEmpty($InputFile)) {
     [void]$help.AppendLine()
     [void]$help.AppendLine('    [-Runtime {2.0 | 4.0}] [-Platform {AnyCPU | x86 | x64}] [-Apartment {STA | MTA}] [-LCID <ID>]')
     [void]$help.AppendLine()
-    [void]$help.AppendLine('    [-NoConfigFile:<bool>] [-NoConsole] [-NoOutput] [-NoError]')
+    [void]$help.AppendLine('    [-NoConfigFile:<bool>] [-NoConsole] [-NoOutput] [-NoError] [-NoVisualStyles]')
     [void]$help.AppendLine('    [-CredentialGui] [-RequireAdmin] [-SupportOS] [-Virtualize] [-LongPaths]')
     [void]$help.AppendLine()
     [void]$help.AppendLine()
@@ -276,6 +280,7 @@ if ([string]::IsNullOrEmpty($InputFile)) {
     [void]$help.AppendLine('       NoConsole = The resulting executable will be a Windows Forms application without a console window')
     [void]$help.AppendLine('        NoOutput = The resulting executable will generate no standard output (includes verbose and information streams)')
     [void]$help.AppendLine('         NoError = The resulting executable will generate no error output (includes warning and debug streams)')
+    [void]$help.AppendLine('  NoVisualStyles = Disables visual styles for a generated windows GUI application (only applicable with parameter -NoConsole)')
     [void]$help.AppendLine('   CredentialGui = Use GUI for prompting credentials in console mode instead of console input')
     [void]$help.AppendLine('    RequireAdmin = If UAC is enabled, compiled executable run only in elevated context (UAC dialog appears if required)')
     [void]$help.AppendLine('     SupportedOS = Use functions of newest Windows versions (run [System.Environment]::OSVersion to see version)')
@@ -1379,6 +1384,8 @@ if ($NoConsole) {
     [void]$framework.AppendLine('        {')
     [void]$framework.AppendLine('            // Generate controls')
     [void]$framework.AppendLine('            Form form = new Form();')
+    [void]$framework.AppendLine('            form.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);')
+    [void]$framework.AppendLine('            form.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;')
     [void]$framework.AppendLine('            Label label = new Label();')
     [void]$framework.AppendLine('            TextBox textBox = new TextBox();')
     [void]$framework.AppendLine('            Button buttonOk = new Button();')
@@ -1478,6 +1485,8 @@ if ($NoConsole) {
     [void]$framework.AppendLine()
     [void]$framework.AppendLine('            // Generate controls')
     [void]$framework.AppendLine('            Form form = new Form();')
+    [void]$framework.AppendLine('            form.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);')
+    [void]$framework.AppendLine('            form.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;')
     [void]$framework.AppendLine('            RadioButton[] aradioButton = new RadioButton[aAuswahl.Count];')
     [void]$framework.AppendLine('            ToolTip toolTip = new ToolTip();')
     [void]$framework.AppendLine('            Button buttonOk = new Button();')
@@ -1606,6 +1615,8 @@ if ($NoConsole) {
     [void]$framework.AppendLine('        {')
     [void]$framework.AppendLine('            public KeyboardForm()')
     [void]$framework.AppendLine('            {')
+    [void]$framework.AppendLine('                form.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);')
+    [void]$framework.AppendLine('                form.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;')
     [void]$framework.AppendLine('                this.KeyDown += new KeyEventHandler(KeyboardForm_KeyDown);')
     [void]$framework.AppendLine('                this.KeyUp += new KeyEventHandler(KeyboardForm_KeyUp);')
     [void]$framework.AppendLine('            }')
@@ -1751,6 +1762,10 @@ if ($NoConsole) {
     [void]$framework.AppendLine('        private void InitializeComponent()')
     [void]$framework.AppendLine('        {')
     [void]$framework.AppendLine('            this.SuspendLayout();')
+
+    [void]$framework.AppendLine()
+    [void]$framework.AppendLine('            form.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);')
+    [void]$framework.AppendLine('            form.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;')
 
     [void]$framework.AppendLine()
     [void]$framework.AppendLine('            this.Text = "Progress";')
@@ -2814,7 +2829,7 @@ if (-not $NoError) {
 [void]$framework.AppendLine()
 [void]$framework.AppendLine('        public override Version Version')
 [void]$framework.AppendLine('        {')
-[void]$framework.AppendLine('            get { return new Version(0, 6, 0, 0); }')
+[void]$framework.AppendLine('            get { return new Version(0, 6, 1, 0); }')
 [void]$framework.AppendLine('        }')
 
 [void]$framework.AppendLine()
@@ -2891,6 +2906,11 @@ if ($Apartment -eq 'MTA') { [void]$framework.AppendLine('        [MTAThread]') }
 
 if (-not [string]::IsNullOrEmpty($culture.ToString())) {
     [void]$framework.AppendFormat('            {0}', $culture.ToString()).AppendLine()
+}
+
+if ((-not $NoVisualStyles) -and $NoConsole) {
+    [void]$framework.AppendLine()
+    [void]$framework.AppendLine('            Application.EnableVisualStyles();')
 }
 
 [void]$framework.AppendLine()

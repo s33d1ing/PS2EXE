@@ -40,7 +40,7 @@ ps2exe.ps1 [-InputFile] <string> [[-OutputFile] <string>] [[-IconFile] <string>]
 
     [-Runtime {2.0 | 4.0}] [-Platform {AnyCPU | x86 | x64}] [-Apartment {STA | MTA}] [-LCID <ID>]
 
-    [-NoConfigFile:<bool>] [-NoConsole] [-NoOutput] [-NoError]
+    [-NoConfigFile:<bool>] [-NoConsole] [-NoOutput] [-NoError] [-NoVisualStyles]
     [-CredentialGui] [-RequireAdmin] [-SupportOS] [-Virtualize] [-LongPaths]
 
 
@@ -67,6 +67,7 @@ ps2exe.ps1 [-InputFile] <string> [[-OutputFile] <string>] [[-IconFile] <string>]
        NoConsole = The resulting executable will be a Windows Forms application without a console window
         NoOutput = The resulting executable will generate no standard output (includes verbose and information streams)
          NoError = The resulting executable will generate no error output (includes warning and debug streams)
+  NoVisualStyles = Disables visual styles for a generated windows GUI application (only applicable with parameter -NoConsole)
    CredentialGui = Use GUI for prompting credentials in console mode instead of console input
     RequireAdmin = if UAC is enabled, compiled executable run only in elevated context (UAC dialog appears if required)
      SupportedOS = Use functions of newest Windows versions (run [System.Environment]::OSVersion to see version)
@@ -126,7 +127,7 @@ else {
 }
 ```
 
-### Window in background in -noConsole mode:
+### Window in background in -NoConsole mode:
 
 When an external window is opened in a script with -noConsole mode (i.e. for Get-Credential or for a command that needs a cmd.exe shell) the next window is opened in the background.
 
@@ -144,6 +145,9 @@ $Host.UI.RawUI.FlushInputBuffer()
 
 
 ## Changes:
+### 2.1.0 / 2020-04-23
+  - **G. Dees:** Merged -NoVisualStyles from Markus Scholtes's module
+
 ### 2.0.0 / 2020-04-10
   - **G. Dees:** Write prompt to console after viewing help message
   - **G. Dees:** Updated parameter names and combined several using sets
