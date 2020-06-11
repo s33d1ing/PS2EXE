@@ -7,8 +7,8 @@ With PowerShell 5.x support and graphical front end.
 Module version.
 
 Author: Markus Scholtes, Garrett Dees  
-Version: 2.0.0  
-Date: 2020-04-10  
+Version: 2.1.0  
+Date: 2020-04-23  
 
 You find the script based version here: [PS2EXE-GUI: "Convert" PowerShell Scripts to EXE Files with GUI](https://gallery.technet.microsoft.com/PS2EXE-GUI-Convert-e7cb69d5).
 
