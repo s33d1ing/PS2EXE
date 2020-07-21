@@ -102,7 +102,7 @@ PS2EXE can create config files with the name of the generated executable + ".con
 
 ### Password security:
 
-Never store passwords in your compiled script! One can simply decompile the script with the parameter -extract. For example
+Never store passwords in your compiled script! One can simply decompile the script with the parameter -Extract. For example
 
 ``` PowerShell
 Output.exe -Extract:C:\Output.ps1
@@ -129,7 +129,7 @@ else {
 
 ### Window in background in -NoConsole mode:
 
-When an external window is opened in a script with -noConsole mode (i.e. for Get-Credential or for a command that needs a cmd.exe shell) the next window is opened in the background.
+When an external window is opened in a script with -NoConsole mode (i.e. for Get-Credential or for a command that needs a cmd.exe shell) the next window is opened in the background.
 
 The reason for this is that on closing the external window windows tries to activate the parent window. Since the compiled script has no window, the parent window of the compiled script is activated instead, normally the window of Explorer or PowerShell.
 

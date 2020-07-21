@@ -1,4 +1,8 @@
 {
     "files.insertFinalNewline": true,
-    "files.trimTrailingWhitespace": true
+    "files.trimTrailingWhitespace": true,
+
+    "[markdown]": {
+        "files.trimTrailingWhitespace": false
+    },
 }
