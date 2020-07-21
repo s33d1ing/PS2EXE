@@ -1615,8 +1615,8 @@ if ($NoConsole) {
     [void]$framework.AppendLine('        {')
     [void]$framework.AppendLine('            public KeyboardForm()')
     [void]$framework.AppendLine('            {')
-    [void]$framework.AppendLine('                form.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);')
-    [void]$framework.AppendLine('                form.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;')
+    [void]$framework.AppendLine('                this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);')
+    [void]$framework.AppendLine('                this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;')
     [void]$framework.AppendLine('                this.KeyDown += new KeyEventHandler(KeyboardForm_KeyDown);')
     [void]$framework.AppendLine('                this.KeyUp += new KeyEventHandler(KeyboardForm_KeyUp);')
     [void]$framework.AppendLine('            }')
@@ -1764,8 +1764,8 @@ if ($NoConsole) {
     [void]$framework.AppendLine('            this.SuspendLayout();')
 
     [void]$framework.AppendLine()
-    [void]$framework.AppendLine('            form.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);')
-    [void]$framework.AppendLine('            form.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;')
+    [void]$framework.AppendLine('            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);')
+    [void]$framework.AppendLine('            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;')
 
     [void]$framework.AppendLine()
     [void]$framework.AppendLine('            this.Text = "Progress";')
