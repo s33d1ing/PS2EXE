@@ -135,8 +135,8 @@
         An executable file (.exe or .com)
 
     .NOTES
-        Version: 0.6.1.0
-        Date: 2020-04-23
+        Version: 0.6.1.1
+        Date: 2020-07-21
         Author: Ingo Karstein, Markus Scholtes, Garrett Dees
 
         PowerShell 2.0 incompatibilities:
@@ -221,7 +221,7 @@ function Get-FullName ([string]$Path) {
 
 <################################################################################>
 <##                                                                            ##>
-<##      PS2EXE-GUI v0.6.1.0                                                   ##>
+<##      PS2EXE-GUI v0.6.1.1                                                   ##>
 <##      Written by: Ingo Karstein (http://blog.karstein-consulting.com)       ##>
 <##      Reworked and GUI support by Markus Scholtes                           ##>
 <##      Refactor by Garrett Dees                                              ##>
@@ -234,7 +234,7 @@ function Get-FullName ([string]$Path) {
 
 
 if (-not $Nested) {
-    Write-Host 'PS2EXE-GUI v0.6.1.0 by Ingo Karstein'
+    Write-Host 'PS2EXE-GUI v0.6.1.1 by Ingo Karstein'
     Write-Host 'Reworked and GUI support by Markus Scholtes'
     Write-Host 'Refactor by Garrett Dees'
 }
@@ -2829,7 +2829,7 @@ if (-not $NoError) {
 [void]$framework.AppendLine()
 [void]$framework.AppendLine('        public override Version Version')
 [void]$framework.AppendLine('        {')
-[void]$framework.AppendLine('            get { return new Version(0, 6, 1, 0); }')
+[void]$framework.AppendLine('            get { return new Version(0, 6, 1, 1); }')
 [void]$framework.AppendLine('        }')
 
 [void]$framework.AppendLine()

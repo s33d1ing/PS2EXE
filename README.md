@@ -7,8 +7,8 @@ With PowerShell 5.x support and graphical front end.
 Module version.
 
 Author: Markus Scholtes, Garrett Dees  
-Version: 2.1.0  
-Date: 2020-04-23  
+Version: 2.1.1  
+Date: 2020-07-21  
 
 You find the script based version here: [PS2EXE-GUI: "Convert" PowerShell Scripts to EXE Files with GUI](https://gallery.technet.microsoft.com/PS2EXE-GUI-Convert-e7cb69d5).
 
@@ -145,6 +145,9 @@ $Host.UI.RawUI.FlushInputBuffer()
 
 
 ## Changes:
+### 2.1.1 / 2020-07-21
+  - **G. Dees:** Fixed name "form" outside of context
+
 ### 2.1.0 / 2020-04-23
   - **G. Dees:** Merged -NoVisualStyles from Markus Scholtes's module
 
