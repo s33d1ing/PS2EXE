@@ -1,25 +1,16 @@
 # Demo program for Write-Progress
 
-1..10 | ForEach-Object {
-	$activity  = 'Activity {0}'  -f $PSItem
-	$status    = 'State {0}'     -f $PSItem
-	$operation = 'Operation {0}' -f $PSItem
-	$percent   = 10 * $PSItem
-	$remaining = 10 - $PSItem
+for ($i = 1; $i -le 10; $i++) {
+    Write-Progress -Activity 'Outer loop' -Status ('Counting {0} out of 10' -f $i) -Id 1 -PercentComplete ($i * 10)
+    Start-Sleep -Milliseconds 10
 
-	Write-Progress -Activity $activity -Status $status -Id 1 -CurrentOperation $operation -PercentComplete $percent -SecondsRemaining $remaining
-	Start-Sleep -Seconds 1
+    for ($j = 1; $j -le 100; $j++) {
+        Write-Progress -Activity 'Inner loop' -Status ('Counting {0} out of 100' -f $j) -Id 2 -PercentComplete $j -ParentId 1
+        Start-Sleep -Milliseconds 10
+    }
+
+    Write-Progress -Activity 'Inner loop' -Status 'Complete' -Id 2 -Completed
 }
 
-Start-Sleep -Seconds 3
-
-Write-Progress -Activity 'Activity' -Status 'State' -Id 1 -Completed
-Write-Host 'Completed'
-
-Start-Sleep -Seconds 1
-
-Write-Progress -Activity 'New progress' -Status 'New state' -PercentComplete 33 -SecondsRemaining 734
-
-Start-Sleep -Seconds 3
-
-Write-Output 'Exiting program'
+Write-Progress -Activity 'Outer loop' -Status 'Complete' -Id 1 -Completed
+Write-Output 'Completed'
