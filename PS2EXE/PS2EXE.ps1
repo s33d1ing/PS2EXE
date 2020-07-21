@@ -3179,11 +3179,27 @@ Write-Host 'Compiling file...'
 $compilerResults = $codeProvider.CompileAssemblyFromSource($compilerParameters, $framework.ToString())
 
 
+if ($PSBoundParameters.ContainsKey('Debug')) {
+    $compilerResults.TempFiles | Where-Object { $_ -like '*.cs' } | Select-Object -First 1 | ForEach-Object {
+        $source = (
+            [System.IO.Path]::Combine(
+                [System.IO.Path]::GetDirectoryName($OutputFile),
+                [System.IO.Path]::GetFileNameWithoutExtension($OutputFile) + '.cs'
+            )
+        )
+
+        Write-Debug ('Source file copied: {0}' -f $source)
+        Copy-Item -Path $_ -Destination $source -Force
+    }
+
+    $compilerResults.TempFiles | Remove-Item -Force -ErrorAction SilentlyContinue
+}
+
+
 if ($compilerResults.Errors.Count -gt 0) {
     if (Test-Path -Path $OutputFile) { Remove-Item -Path $OutputFile -Force }
 
-    Write-Error ('Could not create the PowerShell executable because of compilation errors. ' + `
-        'Use -Verbose parameter to see details.') -ErrorAction Continue
+    Write-Error ('Could not create the PowerShell executable because of compilation errors. Use -Verbose parameter to see details.') -ErrorAction Continue
 
     $compilerResults.Errors | ForEach-Object { Write-Verbose $_ }
 
@@ -3193,22 +3209,6 @@ if ($compilerResults.Errors.Count -gt 0) {
 else {
     if (Test-Path -Path $OutputFile) {
         Write-Host ('Output file "{0}" written' -f $OutputFile)
-
-        if ($PSBoundParameters.ContainsKey('Debug')) {
-            $compilerResults.TempFiles | Where-Object { $_ -like '*.cs' } | Select-Object -First 1 | ForEach-Object {
-                $source = (
-                    [System.IO.Path]::Combine(
-                        [System.IO.Path]::GetDirectoryName($OutputFile),
-                        [System.IO.Path]::GetFileNameWithoutExtension($OutputFile) + '.cs'
-                    )
-                )
-
-                Write-Debug ('Source file copied: {0}' -f $source)
-                Copy-Item -Path $_ -Destination $source -Force
-            }
-
-            $compilerResults.TempFiles | Remove-Item -Force -ErrorAction SilentlyContinue
-        }
 
         if ((-not $NoConfigFile) -or $LongPaths) {
             Write-Host 'Creating config file for executable...'
