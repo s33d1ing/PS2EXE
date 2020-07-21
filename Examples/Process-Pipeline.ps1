@@ -4,20 +4,24 @@
 
 [CmdletBinding()]
 Param(
-  [parameter(Mandatory=$FALSE, ValueFromPipeline=$TRUE)] [AllowEmptyString()]$Pipeline
+    [Parameter(ValueFromPipeline = $true)]
+    [AllowEmptyString()]
+    [System.Object]$Pipeline
 )
-BEGIN
-{
-	"Reading pipeline as array of strings"
-	$COUNTER = 0
+
+begin {
+    $counter = 0
+
+    Write-Output 'Reading pipeline as array of strings'
 }
-PROCESS
-{
-	if ($Pipeline -eq $NULL)
-	{ Write-Output "No element found in the pipeline" }
-	else
-	{
-		$COUNTER++
-		Write-Output "$COUNTER`: $Pipeline"
-	}
+
+process {
+    if ($null -eq $Pipeline) {
+        Write-Output 'No element found in the pipeline'
+    }
+    else {
+        $counter++
+
+        Write-Output ('{0}: {1}' -f $counter, $Pipeline)
+    }
 }

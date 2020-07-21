@@ -1,13 +1,16 @@
-﻿# demo program for Write-Progress
+# Demo program for Write-Progress
 
-1..10 | % { Write-Progress -Activity "Activity $_" -Status "State $_" -Id 1 -CurrentOperation "Operation $_" -PercentComplete ([int]10*$_) -SecondsRemaining (10-$_) ;
-	Start-Sleep 1 }
+for ($i = 1; $i -le 10; $i++) {
+    Write-Progress -Activity 'Outer loop' -Status ('Counting {0} out of 10' -f $i) -Id 1 -PercentComplete ($i * 10)
+    Start-Sleep -Milliseconds 10
 
-Start-Sleep 3
-Write-Progress -Activity "Activity" -Status "State" -Id 1 -Completed
-Write-Host "Completed"
-Start-Sleep 1
+    for ($j = 1; $j -le 100; $j++) {
+        Write-Progress -Activity 'Inner loop' -Status ('Counting {0} out of 100' -f $j) -Id 2 -PercentComplete $j -ParentId 1
+        Start-Sleep -Milliseconds 10
+    }
 
-Write-Progress -Activity "New progress" -Status "New state" -PercentComplete 33 -SecondsRemaining 734
-Start-Sleep 3
-Write-Output "Exiting program"
+    Write-Progress -Activity 'Inner loop' -Status 'Complete' -Id 2 -Completed
+}
+
+Write-Progress -Activity 'Outer loop' -Status 'Complete' -Id 1 -Completed
+Write-Output 'Completed'

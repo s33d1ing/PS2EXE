@@ -2,13 +2,14 @@
 
 # When compiled with PS2EXE the variable MyCommand contains no path anymore
 
-if ($MyInvocation.MyCommand.CommandType -eq "ExternalScript")
-{ # Powershell script
-	$ScriptPath = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
-}
-else
-{ # PS2EXE compiled script
-	$ScriptPath = Split-Path -Parent -Path ([Environment]::GetCommandLineArgs()[0])
+# PowerShell script
+if ($MyInvocation.MyCommand.CommandType -eq 'ExternalScript') {
+    $script = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
 }
 
-"Directory of executable file: " + $ScriptPath
+# PS2EXE compiled script
+else {
+    $script = Split-Path -Path ([Environment]::GetCommandLineArgs()[0]) -Parent
+}
+
+Write-Output ('Directory of executable file: {0}' -f $script)
